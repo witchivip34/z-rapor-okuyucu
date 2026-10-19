@@ -9,7 +9,8 @@ Bilanço: Luca "Fiş Aktarım Şablon" (.xlsx, `sablonlar/bilanco_fis_aktarim_sa
 Hesap kodları: varsayılanlar aşağıda (tekdüzen hesap planı). Firma (VKN) başına geçersiz kılma
 kullanıcının kendi `hesaplar.json` dosyasından okunur; biçim için `ornekler/hesaplar.ornek.json`.
 
-Not: Luca'ya gerçek içe aktarım henüz doğrulanmadı; sütun değerleri örnek kayıtlardan çıkarımdır.
+Her iki şablon Luca'da gerçek dönem verisiyle içe aktarılarak doğrulandı. Hesap kodları büroya göre
+değişir; ilk aktarım kendi deneme firmasında kontrol edilmeli.
 """
 from __future__ import annotations
 

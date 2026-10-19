@@ -172,9 +172,8 @@ z-rapor luca calisma/raporlar.json --tur isletme --hesaplar hesaplar.json -o luc
   (biçim: `ornekler/hesaplar.ornek.json`). Kontrol edilmemiş kod kullanılırsa komut bunu söyler.
 - Çözülmemiş kırmızısı olan Z dosyaya **girmez**, nedeniyle listelenir.
 
-> **Dürüst not:** Luca'ya gerçek içe aktarım henüz doğrulanmadı. Sütun değerleri (ör. işletme defterinde
-> "BELGE TÜRÜ = Alış", "KREDİLİ TUTAR = kart") örnek kayıtlardan çıkarımdır. İlk aktarımı bir deneme
-> firmasında yapıp sonucu kontrol edin.
+Her iki şablon da Luca'da gerçek dönem verisiyle içe aktarılarak doğrulandı. Hesap kodları her büroda
+farklıdır; ilk aktarımı kendi deneme firmanızda yapıp kontrol edin.
 
 ## 7 kontrol
 
@@ -230,7 +229,6 @@ iki kez gelirse biri çıkarılır. KDV formülü ve toplam tutarlılığı ayn�
 - Cihaz düzenleri farklıdır; talimat yaygın düzene göre yazıldı. Farklı bir yazar kasada ilk ayı dikkatle
   kontrol edin.
 - HEIC fotoğrafları web sayfası kabul etmez (JPEG'e çevirin).
-- Luca aktarımı doğrulanmadı (yukarıdaki not).
 
 ## Gizlilik
 

@@ -11,6 +11,6 @@
   firma (VKN) gruplama, tekrar ayıklama.
 - Excel: Özet, Detay, Departmanlar, Ödemeler, Kontrol Listesi; kırmızı/sarı/mavi işaretleme.
 - Luca: bilanço fiş aktarım şablonu ve işletme defteri CSV'si; firma başına hesap kodu dosyası.
-  Gerçek içe aktarım henüz doğrulanmadı.
+  Her iki şablon Luca'da gerçek dönem verisiyle içe aktarılarak doğrulandı.
 - Masraf fişi listesi ve parola korumalı telefon yükleme sayfası.
 - API'siz sentetik örnekler ve pytest testleri.

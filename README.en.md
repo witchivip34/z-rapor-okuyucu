@@ -15,7 +15,8 @@ This tool:
    *prove and fix* a misread digit; Z-number/date continuity.
 3. **Writes** a colour-coded Excel workbook (red = doesn't add up, yellow = unusual/estimated, blue =
    corrected from the chain) and import files for the Luca accounting software (balance-sheet journal
-   template and simplified-ledger CSV). *Luca import has not yet been verified against a live system.*
+   template and simplified-ledger CSV). Both templates were verified by importing real period data into
+   Luca; account codes differ per office, so do your first import in a test company and check it.
 
 Also included: an expense-receipt list generator and a password-protected mobile upload page (FastAPI).
 
