@@ -30,7 +30,7 @@ Ayrıca: masraf fişlerinden "Masraf Listesi" Excel'i ve telefondan yükleme yap
 Python 3.10 veya üstü:
 
 ```bash
-git clone <bu repo> && cd z-rapor-okuyucu
+git clone https://github.com/witchivip34/z-rapor-okuyucu.git && cd z-rapor-okuyucu
 python -m venv .venv && . .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -e .                 # temel
 pip install -e ".[web,test]"     # telefon sayfası ve testler de
