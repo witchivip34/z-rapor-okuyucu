@@ -26,7 +26,7 @@ def fotolar(girdiler: Iterable[str | Path]) -> list[Path]:
     return out
 
 
-def _z_degil_ayikla(f: Path, oks: dict[int, list], bildir: Bildir) -> tuple[list[list[dict]], list[str]]:
+def _z_degil_ayikla(ad: str, oks: dict[int, list], bildir: Bildir) -> tuple[list[list[dict]], list[str]]:
     """Okumalardan Z raporu olmayan belgeleri ayırır; temiz okuma listeleri ve not döndürür."""
     temiz, z_degil = [], []
     for n in sorted(oks):
@@ -41,8 +41,8 @@ def _z_degil_ayikla(f: Path, oks: dict[int, list], bildir: Bildir) -> tuple[list
             if "_z_degil" in r:
                 turler = ", ".join(sorted({(b.get("tur") or "?") + (f" ({b['satici']})" if b.get("satici") else "")
                                            for b in r["_z_degil"]}))
-                z_degil.append(f"{f.name}: {turler}")
-                bildir(f"{f.name}: Z raporu OLMAYAN {len(r['_z_degil'])} belge atlandi — {turler}")
+                z_degil.append(f"{ad}: {turler}")
+                bildir(f"{ad}: Z raporu OLMAYAN {len(r['_z_degil'])} belge atlandi — {turler}")
     return temiz, z_degil
 
 
@@ -84,12 +84,17 @@ def isle(liste: list[Path], cikti: Path, model: str = VARSAYILAN_MODEL, arka_uc:
             except Exception as e:  # bir fotoğraf bozuksa diğerleri devam etsin
                 bildir(f"[{biten}/{toplam}] {f.name} (okuma {n}): OKUNAMADI — {e}")
 
+    return okumalardan_yaz({f.name: oks for f, oks in okumalar.items()}, cikti, bildir)
+
+
+def okumalardan_yaz(okumalar: dict[str, dict[int, list]], cikti: Path, bildir: Bildir = print) -> list[dict]:
+    """Fotoğraf adı -> {okuma no: rapor listesi}: Z olmayanları ayıklar, birleştirir, kontrol eder, yazar."""
     raporlar, z_degil = [], []
-    for f, oks in okumalar.items():
+    for ad, oks in okumalar.items():
         if not oks:
-            bildir(f"{f.name}: hic okunamadi, Excel'de yok!")
+            bildir(f"{ad}: hic okunamadi, Excel'de yok!")
             continue
-        temiz, zd = _z_degil_ayikla(f, oks, bildir)
+        temiz, zd = _z_degil_ayikla(ad, oks, bildir)
         z_degil += zd
         raporlar += birlestir(temiz)
     if not raporlar:

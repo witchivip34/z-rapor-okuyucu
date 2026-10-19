@@ -84,6 +84,20 @@ z-rapor masraf masraf_fotolari/ -o masraf_listesi.xlsx --arka-uc karma
 Okumalar çıktının yanındaki `_okumalar/` klasöründe fotoğrafın içerik özetiyle önbelleklenir; aynı
 fotoğraf ikinci kez API'ye gitmez.
 
+### Önbellekten yeniden üretme (`yenile`)
+
+Kontrol ya da Excel kodu güncellendiyse fotoğrafları yeniden okutmak gerekmez. `yenile` model çağrısı
+yapmadan `_okumalar/` önbelleğindeki okumalardan kontrolü, Excel'i ve `raporlar.json`'u yeniden üretir:
+
+```bash
+z-rapor yenile calisma/eylul.xlsx                        # önbellek: calisma/_okumalar/
+z-rapor yenile masraf_listesi.xlsx --tur masraf --hazirlayan "Ad Soyad"
+z-rapor yenile --veri ./calisma --is 20260919-101500-abc123   # telefon sayfasının bir işi
+```
+
+Aynı fotoğrafın aynı okuma numarası önbellekte birden çok kez varsa en yenisi kullanılır. Telefon
+sayfası çalışıyorsa yeni özeti görmesi için sunucuyu yeniden başlatın.
+
 **Maliyet notu.** Bir okuma = 1 tam görsel + 9 parça, görsel başına yaklaşık 1.600 giriş token'ı: okuma
 başına kabaca 16-17 bin giriş ve 2-3 bin çıkış token'ı. Varsayılan çift okumayla fotoğraf başına bunun iki
 katı. Bir karede 3 fiş varsa maliyet fişe bölünür. Güncel token fiyatı için Anthropic'in fiyat sayfasına

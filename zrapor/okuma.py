@@ -252,6 +252,7 @@ def oku_ham(foto: Path, calisma: Path, sema: dict, talimat: str, model: str = VA
         sonuc = _api(parcala(foto, calisma / anahtar), api_modeli(model), sema, talimat)
     else:
         sonuc = _cli(parcala(foto, calisma / anahtar), model, sema, talimat)
+    sonuc = dict(sonuc, _kaynak=foto.name)  # `z-rapor yenile` fotoğraf adını önbellekten alır
     onbellek.write_text(json.dumps(sonuc, ensure_ascii=False, indent=1), encoding="utf-8")
     return sonuc
 
@@ -262,8 +263,12 @@ def oku(foto: Path, calisma: Path, model: str = VARSAYILAN_MODEL, arka_uc: str =
 
     Z raporu olmayan belgeler listede `{"_z_degil": [...]}` kaydı olarak döner; isleme ayıklar.
     """
-    sonuc = oku_ham(foto, calisma, SEMA, TALIMAT, model, arka_uc, yeniden, deneme)
-    raporlar = [dict(r, _kaynak=foto.name) for r in sonuc.get("raporlar", [])]
+    return raporlara(oku_ham(foto, calisma, SEMA, TALIMAT, model, arka_uc, yeniden, deneme), foto.name)
+
+
+def raporlara(sonuc: dict, kaynak: str) -> list[dict]:
+    """Ham model çıktısı -> rapor listesi (Z olmayan belgeler `_z_degil` kaydı olarak)."""
+    raporlar = [dict(r, _kaynak=kaynak) for r in sonuc.get("raporlar", [])]
     if sonuc.get("z_raporu_olmayan"):
-        raporlar.append({"_z_degil": sonuc["z_raporu_olmayan"], "_kaynak": foto.name})
+        raporlar.append({"_z_degil": sonuc["z_raporu_olmayan"], "_kaynak": kaynak})
     return raporlar

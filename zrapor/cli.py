@@ -3,6 +3,8 @@
     z-rapor oku <foto|klasör>... -o cikti.xlsx [--arka-uc api|cli|gemini|karma] [--model sonnet] [--okuma 2]
                                               [--paralel 3] [--yeniden]
     z-rapor dogrula <okuma.json> -o cikti.xlsx          (API'siz: hazır okumadan kontrol + Excel)
+    z-rapor yenile <cikti.xlsx> [--tur z|masraf]        (model çağrısız: _okumalar/ önbelleğinden yeniden)
+    z-rapor yenile --veri ./calisma --is <id>           (telefon sayfasının bir işini yeniden üret)
     z-rapor luca <raporlar.json> --tur bilanco|isletme [--hesaplar h.json] -o dosya
     z-rapor masraf <foto|klasör>... -o liste.xlsx [--hazirlayan AD]
     z-rapor web [--port 8765] [--veri ./calisma]
@@ -45,6 +47,13 @@ def _ayristirici() -> argparse.ArgumentParser:
     p = alt.add_parser("dogrula", help="hazır okuma JSON'undan (API'siz) kontrol + Excel")
     p.add_argument("okuma_json")
     p.add_argument("-o", "--cikti", required=True)
+
+    p = alt.add_parser("yenile", help="model çağrısı yapmadan _okumalar/ önbelleğinden kontrol + Excel")
+    p.add_argument("cikti", nargs="?", help="yeniden yazılacak Excel (önbellek: yanındaki _okumalar/)")
+    p.add_argument("--tur", choices=("z", "masraf"), help="önbellekte ikisi de varsa hangisi (varsayılan: z)")
+    p.add_argument("--hazirlayan", default="", help="masraf listesi için")
+    p.add_argument("--veri", help="telefon sayfasının veri klasörü (--is ile)")
+    p.add_argument("--is", dest="is_id", help="telefon sayfasındaki iş kimliği")
 
     p = alt.add_parser("luca", help="kontrol edilmiş raporlar.json'dan Luca aktarım dosyası")
     p.add_argument("raporlar_json")
@@ -92,6 +101,22 @@ def _dogrula(a) -> None:
     print(f"Kontrol verisi: {cikti.parent / 'raporlar.json'}")
 
 
+def _yenile(a) -> None:
+    from .yenile import yenile, yenile_is
+
+    if a.is_id:
+        if not a.veri:
+            sys.exit("--is ile --veri de verin")
+        print(f"Excel: {yenile_is(Path(a.veri), a.is_id, bildir=_yaz)}")
+        print("Çalışan telefon sayfası özeti yeniden başlatınca görür.")
+        return
+    if not a.cikti:
+        sys.exit("yenilenecek Excel dosyasını ya da --veri ve --is verin")
+    cikti = Path(a.cikti)
+    yenile(cikti, a.tur, a.hazirlayan, bildir=_yaz)
+    print(f"Excel: {cikti}")
+
+
 def _luca(a) -> None:
     from . import luca
 
@@ -126,7 +151,7 @@ def _web(a) -> None:
     calistir(port=a.port, host=a.host, veri=Path(a.veri), model=a.model, arka_uc=a.arka_uc)
 
 
-KOMUTLAR = {"oku": _oku, "dogrula": _dogrula, "luca": _luca, "masraf": _masraf, "web": _web}
+KOMUTLAR = {"oku": _oku, "dogrula": _dogrula, "yenile": _yenile, "luca": _luca, "masraf": _masraf, "web": _web}
 
 
 def main(argv: list[str] | None = None) -> None:

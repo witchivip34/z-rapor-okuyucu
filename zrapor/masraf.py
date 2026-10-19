@@ -94,9 +94,14 @@ Sayilar: Turk bicimi "*1.326,47" -> 1326.47 (nokta binlik, virgul ondalik, * isa
 def oku(foto: Path, calisma: Path, model: str = VARSAYILAN_MODEL, arka_uc: str = VARSAYILAN_ARKA_UC,
         yeniden: bool = False, deneme: int = 1) -> dict:
     """Bir fotoğraftaki masraf belgeleri (önbellekli)."""
-    sonuc = dict(oku_ham(foto, calisma, SCHEMA, TALIMAT, model, arka_uc, yeniden, deneme, onek="masraf_"))
-    sonuc["belgeler"] = [dict(b, _kaynak=foto.name) for b in sonuc.get("belgeler", [])]
-    sonuc["_kaynak"] = foto.name
+    return belgelere(oku_ham(foto, calisma, SCHEMA, TALIMAT, model, arka_uc, yeniden, deneme, onek="masraf_"),
+                     foto.name)
+
+
+def belgelere(sonuc: dict, kaynak: str) -> dict:
+    """Ham model çıktısındaki her belgeye kaynak fotoğraf adını ekler."""
+    sonuc = dict(sonuc, _kaynak=kaynak)
+    sonuc["belgeler"] = [dict(b, _kaynak=kaynak) for b in sonuc.get("belgeler", [])]
     return sonuc
 
 
@@ -384,16 +389,22 @@ def isle(liste: list[Path], cikti: Path, model: str = VARSAYILAN_MODEL, arka_uc:
                 bildir(f"[{biten}/{toplam}] {f.name} (okuma {n}): {len(s.get('belgeler', []))} masraf fişi")
             except Exception as e:
                 bildir(f"[{biten}/{toplam}] {f.name} (okuma {n}): OKUNAMADI — {e}")
+    return okumalardan_yaz({f.name: oks for f, oks in okumalar.items()}, cikti, hazirlayan, bildir)
+
+
+def okumalardan_yaz(okumalar: dict[str, dict[int, dict]], cikti: Path, hazirlayan: str = "",
+                    bildir=print) -> dict:
+    """Fotoğraf adı -> {okuma no: okuma}: birleştirir, kontrol eder, masraf listesini yazar; özet döndürür."""
     belgeler, olmayan = [], []
-    for f, oks in okumalar.items():
+    for ad, oks in okumalar.items():
         if not oks:
-            bildir(f"{f.name}: hiç okunamadı, listede yok!")
+            bildir(f"{ad}: hiç okunamadı, listede yok!")
             continue
         b, o = birlestir([oks[n] for n in sorted(oks)])
         belgeler += b
         if o:
-            olmayan.append(f"{f.name}: {', '.join(o)}")
-            bildir(f"{f.name}: masraf belgesi OLMAYAN {len(o)} belge atlandı — {', '.join(o)}")
+            olmayan.append(f"{ad}: {', '.join(o)}")
+            bildir(f"{ad}: masraf belgesi OLMAYAN {len(o)} belge atlandı — {', '.join(o)}")
     if not belgeler:
         raise RuntimeError("Bu fotoğraflarda masraf fişi bulunamadı."
                            + (" Görülen belgeler: " + " | ".join(olmayan) if olmayan else ""))
