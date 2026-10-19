@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f3864">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='7' y='3' width='18' height='26' rx='2' fill='%231f3864'/%3E%3Ccircle cx='23' cy='23' r='6' fill='%231e7b4a'/%3E%3C/svg%3E">
+<title>Z Rapor Okuyucu</title>
+<style>
+:root{--bg:#f4f6fa;--kart:#fff;--yazi:#1b2433;--soluk:#5d6b80;--cizgi:#dde3ec;--ana:#1f3864;--ana2:#2e5597;
+--yesil:#1e7b4a;--yesil-z:#e3f4ea;--kirmizi:#b3261e;--kirmizi-z:#fde7e5;--sari:#8a6100;--sari-z:#fff4d6;--mavi-z:#e3edf9}
+@media (prefers-color-scheme:dark){:root{--bg:#0f141c;--kart:#182130;--yazi:#e6ebf2;--soluk:#93a1b5;--cizgi:#2a3547;
+--ana:#8fb0ea;--ana2:#a9c3f0;--yesil:#6fd39b;--yesil-z:#163626;--kirmizi:#ff8a80;--kirmizi-z:#3d1a18;--sari:#f2c463;--sari-z:#3a2f12;--mavi-z:#1a2a42}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--yazi);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--ana);color:#fff;padding:14px 16px}
+@media (prefers-color-scheme:dark){header{background:#16233a}}
+header h1{margin:0;font-size:19px;font-weight:650}
+header p{margin:2px 0 0;font-size:13px;opacity:.8}
+main{max-width:640px;margin:0 auto;padding:16px}
+.kart{background:var(--kart);border:1px solid var(--cizgi);border-radius:12px;padding:16px;margin-bottom:14px}
+h2{font-size:16px;margin:0 0 10px}
+label{display:block;font-size:14px;color:var(--soluk);margin:10px 0 4px}
+input[type=text],input[type=password]{width:100%;padding:11px 12px;border:1px solid var(--cizgi);border-radius:9px;
+font-size:16px;background:var(--bg);color:var(--yazi)}
+button,.dugme{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:9px;
+padding:12px 16px;font-size:16px;font-weight:600;cursor:pointer;text-decoration:none;min-height:46px}
+.birincil{background:var(--ana2);color:#fff;width:100%}
+@media (prefers-color-scheme:dark){.birincil{color:#0f141c}}
+.ikincil{background:var(--bg);color:var(--yazi);border:1px solid var(--cizgi);flex:1}
+button:disabled{opacity:.5;cursor:default}
+.satir{display:flex;gap:10px}
+.gizli{display:none!important}
+.izgara{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-top:12px}
+.kucuk{position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--cizgi);aspect-ratio:3/4;background:var(--bg)}
+.kucuk img{width:100%;height:100%;object-fit:cover;display:block}
+.kucuk .rozet{position:absolute;left:4px;right:4px;bottom:4px;font-size:11px;padding:2px 5px;border-radius:5px;text-align:center}
+.kucuk .sil{position:absolute;top:4px;right:4px;width:26px;height:26px;min-height:0;padding:0;border-radius:50%;
+background:rgba(0,0,0,.55);color:#fff;font-size:15px}
+.iyi{background:var(--yesil-z);color:var(--yesil)}
+.kotu{background:var(--sari-z);color:var(--sari)}
+.not{font-size:13px;color:var(--soluk);margin:8px 0 0}
+.uyari-kutu{background:var(--sari-z);color:var(--sari);border-radius:9px;padding:10px 12px;font-size:14px;margin-top:10px}
+.hata-kutu{background:var(--kirmizi-z);color:var(--kirmizi);border-radius:9px;padding:10px 12px;font-size:14px;margin-top:10px}
+.cubuk{height:6px;border-radius:3px;background:var(--cizgi);overflow:hidden;margin:10px 0 4px}
+.cubuk i{display:block;height:100%;background:var(--ana2);width:0;transition:width .3s}
+.is{border-top:1px solid var(--cizgi);padding:12px 0}
+.is:first-of-type{border-top:0;padding-top:0}
+.is-ust{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.is-ad{font-weight:600;overflow-wrap:anywhere}
+.etiket{font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.e-sirada{background:var(--mavi-z);color:var(--ana2)}.e-isleniyor{background:var(--sari-z);color:var(--sari)}
+.e-bitti{background:var(--yesil-z);color:var(--yesil)}.e-hata{background:var(--kirmizi-z);color:var(--kirmizi)}
+.sayilar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.sayilar span{font-size:12px;padding:3px 8px;border-radius:6px}
+.s-h{background:var(--kirmizi-z);color:var(--kirmizi)}.s-u{background:var(--sari-z);color:var(--sari)}
+.s-d{background:var(--mavi-z);color:var(--ana2)}
+.indir{background:var(--yesil);color:#fff;width:100%;margin-top:6px}
+@media (prefers-color-scheme:dark){.indir{color:#0f141c}}
+.son-mesaj{font-size:12px;color:var(--soluk);margin-top:4px;overflow-wrap:anywhere}
+.toggle{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:14px}
+.toggle input{width:20px;height:20px}
+header{padding:16px}
+.marka{display:flex;align-items:center;gap:12px;max-width:640px;margin:0 auto}
+.logo{width:40px;height:40px;flex:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
+header h1{font-size:20px;letter-spacing:-.01em}
+.rehber{border-left:4px solid var(--ana2)}
+.rehber-ust{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.rehber h2{margin:0}
+.metin-dugme,.kural-link{background:none;color:var(--ana2);border:0;padding:6px 4px;min-height:0;font-size:14px;font-weight:600}
+.ornekler{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 6px}
+.ornek{margin:0}
+.ornek svg{width:100%;height:auto;display:block;border-radius:6px}
+.ornek .zemin{fill:var(--bg);stroke:none}
+.ornek .fis rect{fill:#fff;stroke:#c9d1dd;stroke-width:.8}
+.ornek .fis path{stroke:#9aa6b8;stroke-width:1.6;stroke-linecap:round}
+.ornek .golge{fill:#000;opacity:.13}
+.ornek figcaption{font-size:13px;margin-top:6px;display:flex;gap:6px;align-items:baseline;color:var(--soluk)}
+.ornek .isaret{font-weight:700}
+.dogru .isaret{color:var(--yesil)}.yanlis .isaret{color:var(--kirmizi)}
+.dogru svg{box-shadow:0 0 0 2px var(--yesil)}.yanlis svg{box-shadow:0 0 0 2px var(--kirmizi)}
+.kurallar{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:12px}
+.kurallar li{display:flex;gap:12px;align-items:flex-start}
+.kurallar .no{flex:none;width:28px;height:28px;border-radius:50%;background:var(--mavi-z);color:var(--ana2);
+display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.kurallar b{display:block;font-size:15px}
+.kurallar p{margin:2px 0 0;font-size:14px;color:var(--soluk)}
+.indir-satir{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.indir-satir .indir{margin-top:0;font-size:15px;padding:12px 8px;text-align:center}
+.luca-dugme{background:var(--ana2)}
+input.tam{width:100%;padding:10px 12px;border:1px solid var(--cizgi);border-radius:9px;font-size:16px;background:var(--bg);color:var(--yazi);margin-top:4px}
+@media (max-width:380px){.indir-satir{grid-template-columns:1fr}}
+select{width:100%;padding:11px 12px;border:1px solid var(--cizgi);border-radius:9px;font-size:16px;background:var(--bg);color:var(--yazi)}
+.hesap-izgara{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0 10px}
+.hesap-izgara label input,.hesap-izgara label select{margin-top:4px}
+.oran-tablo{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+.oran-tablo th{text-align:left;color:var(--soluk);font-weight:600;padding:4px}
+.oran-tablo td{padding:4px}
+.oran-tablo td:first-child{width:44px;font-weight:600}
+.oran-tablo input{width:100%;padding:9px 10px;border:1px solid var(--cizgi);border-radius:8px;font-size:15px;background:var(--bg);color:var(--yazi)}
+.hesap-izgara input{width:100%;padding:10px 12px;border:1px solid var(--cizgi);border-radius:9px;font-size:16px;background:var(--bg);color:var(--yazi)}
+body.mod-z .sadece-masraf, body.mod-masraf .sadece-z{display:none!important}
+.menu{display:flex;gap:8px;margin-bottom:14px;position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0}
+.menu-baslik{display:none}
+.menu-ogesi{flex:1;display:flex;align-items:center;gap:10px;text-align:left;justify-content:flex-start;
+background:var(--kart);color:var(--yazi);border:1px solid var(--cizgi);border-radius:12px;padding:10px 12px;min-height:56px}
+.menu-ogesi b{display:block;font-size:15px}
+.menu-ogesi small{display:none;font-weight:400;font-size:12px;color:var(--soluk)}
+.menu-ikon{font-size:20px;line-height:1}
+.menu-ogesi.aktif{border-color:var(--ana2);box-shadow:inset 0 0 0 1px var(--ana2);background:var(--mavi-z)}
+@media (min-width:960px){
+  main{max-width:1040px}
+  .marka{max-width:1040px}
+  #uygulama:not(.gizli){display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:20px;align-items:start}
+  .menu{order:2;flex-direction:column;position:sticky;top:16px;padding:16px;background:var(--kart);
+    border:1px solid var(--cizgi);border-radius:12px;margin:0}
+  .menu-baslik{display:block;margin:0 0 4px;font-size:13px;font-weight:700;color:var(--soluk);text-transform:uppercase;letter-spacing:.04em}
+  .menu-ogesi small{display:block}
+  .icerik{order:1;min-width:0}
+}
+</style>
+</head>
+<body>
+<header><div class="marka">
+  <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="3" width="18" height="26" rx="2" fill="#fff"/>
+    <rect x="10" y="8" width="12" height="2" rx="1" fill="#1f3864"/><rect x="10" y="13" width="8" height="1.6" rx=".8" fill="#2e5597"/>
+    <rect x="10" y="17" width="10" height="1.6" rx=".8" fill="#2e5597"/><circle cx="23" cy="23" r="6" fill="#1e7b4a"/>
+    <path d="M20.3 23.1l1.8 1.8 3.6-3.7" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <div><h1>Z Rapor Okuyucu</h1><p>Z raporu ve masraf fişinden kontrollü Excel</p></div></div></header>
+<main>
+
+<section id="giris" class="kart gizli">
+  <h2>Giriş</h2>
+  <form id="girisForm">
+    <label for="sifre">Büro şifresi</label>
+    <input id="sifre" type="password" autocomplete="current-password" required>
+    <div style="height:12px"></div>
+    <button class="birincil" type="submit">Giriş yap</button>
+    <div id="girisHata" class="hata-kutu gizli"></div>
+  </form>
+</section>
+
+<div id="uygulama" class="gizli">
+  <nav class="menu" aria-label="İşlerimiz">
+    <p class="menu-baslik">İşlerimiz</p>
+    <button type="button" class="menu-ogesi" data-mod="z"><span class="menu-ikon">🧾</span>
+      <span><b>Z Raporu</b><small>Kontrollü Excel + Luca aktarımı</small></span></button>
+    <button type="button" class="menu-ogesi" data-mod="masraf"><span class="menu-ikon">🛒</span>
+      <span><b>Masraf Listesi</b><small>Masraf fişleri → masraf listesi</small></span></button>
+  </nav>
+  <div class="icerik">
+  <section class="kart rehber sadece-z" id="rehber">
+    <div class="rehber-ust">
+      <div><h2>Z raporu fotoğraf kuralları 📷</h2>
+        <p class="not" style="margin:2px 0 0">Rakamların doğru okunması buna bağlı.</p></div>
+      <button type="button" class="metin-dugme" id="rehberDugme" aria-expanded="true" aria-controls="rehberGovde">Gizle</button>
+    </div>
+    <div id="rehberGovde">
+      <div class="ornekler">
+        <figure class="ornek dogru">
+          <svg viewBox="0 0 120 90" aria-hidden="true"><rect class="zemin" x="1" y="1" width="118" height="88" rx="6"/><g class="fis"><rect x="12" y="12" width="26" height="66" rx="1.5"/><path d="M17 20h16M17 27h11M17 33h14M17 44h16M17 50h9M17 62h16M17 68h12"/></g><g class="fis"><rect x="47" y="12" width="26" height="66" rx="1.5"/><path d="M52 20h16M52 27h11M52 33h14M52 44h16M52 50h9M52 62h16M52 68h12"/></g><g class="fis"><rect x="82" y="12" width="26" height="66" rx="1.5"/><path d="M87 20h16M87 27h11M87 33h14M87 44h16M87 50h9M87 62h16M87 68h12"/></g></svg>
+          <figcaption><span class="isaret">✓</span> 3 fiş, aralıklı, tam kadraj</figcaption>
+        </figure>
+        <figure class="ornek yanlis">
+          <svg viewBox="0 0 120 90" aria-hidden="true"><rect class="zemin" x="1" y="1" width="118" height="88" rx="6"/><g class="fis" transform="rotate(-6 18.0 40.0)"><rect x="6" y="8" width="24" height="64" rx="1.5"/><path d="M11 16h16M11 23h11M11 29h14M11 40h16"/></g><g class="fis" transform="rotate(4 36.0 46.0)"><rect x="24" y="14" width="24" height="64" rx="1.5"/><path d="M29 22h16M29 29h11M29 35h14M29 46h16"/></g><g class="fis" transform="rotate(-3 55.0 38.0)"><rect x="43" y="6" width="24" height="64" rx="1.5"/><path d="M48 14h16M48 21h11M48 27h14M48 38h16"/></g><g class="fis" transform="rotate(7 74.0 48.0)"><rect x="62" y="16" width="24" height="64" rx="1.5"/><path d="M67 24h16M67 31h11M67 37h14M67 48h16"/></g><g class="fis" transform="rotate(-5 94.0 42.0)"><rect x="82" y="10" width="24" height="64" rx="1.5"/><path d="M87 18h16M87 25h11M87 31h14M87 42h16"/></g><rect class="golge" x="70" y="40" width="49" height="49"/></svg>
+          <figcaption><span class="isaret">✗</span> Üst üste, eğik, gölgeli</figcaption>
+        </figure>
+      </div>
+      <ol class="kurallar">
+        <li><span class="no">1</span><div><b>En çok 3 fiş</b><p>Bir karede en çok 3 fiş. Fişler birbirine değmesin, üst üste binmesin.</p></div></li>
+        <li><span class="no">2</span><div><b>Düz zemin, gölge yok</b><p>Düz, açık renkli zemin. Gölge düşmesin, telefonu fişin tam üstünden tutun.</p></div></li>
+        <li><span class="no">3</span><div><b>Fişin tamamı kadrajda</b><p>Fişin tamamı kadrajda olsun: üstteki firma adından en alttaki Z NO'ya kadar.</p></div></li>
+        <li><span class="no">4</span><div><b>WhatsApp'ta "Belge" olarak</b><p>WhatsApp'tan gönderilecekse "Belge" olarak gönderin. Normal fotoğraf olarak gidince küçülüyor, rakamlar bulanıklaşıyor.</p></div></li>
+        <li><span class="no">5</span><div><b>Tüm ay, tek seferde</b><p>Ayın tamamını tek seferde verin. Mümkünse bir sonraki ayın ilk Z'sini de ekleyin, ayın son gününü o doğruluyor.</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="kart rehber sadece-masraf" id="rehberM">
+    <div class="rehber-ust">
+      <div><h2>Masraf fişi fotoğraf kuralları 📷</h2>
+        <p class="not" style="margin:2px 0 0">KDV tutarlarının doğru okunması buna bağlı.</p></div>
+      <button type="button" class="metin-dugme" id="rehberMDugme" aria-expanded="true" aria-controls="rehberMGovde">Gizle</button>
+    </div>
+    <div id="rehberMGovde">
+      <ol class="kurallar">
+        <li><span class="no">1</span><div><b>En çok 4 fiş, aralıklı</b><p>Bir karede en çok 4 fiş, birbirine değmesin. Uzun market fişlerini tek tek çekin.</p></div></li>
+        <li><span class="no">2</span><div><b>Üstü ve altı görünsün</b><p>Üstte satıcı adı, VKN, tarih ve fiş no; altta KDV dökümü (TOPKDV) ve TOPLAM mutlaka kadrajda olsun. Ortadaki ürün satırları önemli değil.</p></div></li>
+        <li><span class="no">3</span><div><b>Düzleştir, bekletme</b><p>Buruşuk fişi düzleştirin. Termal fişler soluyor, silikleşmeden çekin. Gölge düşmesin, telefonu fişin tam üstünden tutun.</p></div></li>
+        <li><span class="no">4</span><div><b>Fatura tek başına</b><p>A4 e-arşiv faturayı tek başına, tam sayfa çekin.</p></div></li>
+        <li><span class="no">5</span><div><b>POS slibi gerekmez</b><p>Kredi kartı slibi (banka fişi) gerekmez, fişin kendisi yeter. Z raporları buraya değil, "Z Raporu" bölümüne.</p></div></li>
+        <li><span class="no">6</span><div><b>Akaryakıt kendiliğinden ayrılır</b><p>Akaryakıt fişleri listede ayrı "Akaryakıt" sayfasına yazılır, ayırmanıza gerek yok.</p></div></li>
+        <li><span class="no">7</span><div><b>WhatsApp'ta "Belge" olarak</b><p>WhatsApp'tan gönderilecekse "Belge" olarak gönderin, yoksa küçülüp bulanıklaşıyor.</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="kart">
+    <div class="rehber-ust"><h2 id="yeniBaslik">Yeni iş</h2><button type="button" class="kural-link" id="kuralGit">📷 Kurallar</button></div>
+    <div class="satir">
+      <button class="ikincil" type="button" id="cekBtn">📷 Fotoğraf çek</button>
+      <button class="ikincil" type="button" id="secBtn">🖼️ Galeriden seç</button>
+    </div>
+    <input id="cek" type="file" accept="image/*" capture="environment" class="gizli">
+    <input id="sec" type="file" accept="image/*" multiple class="gizli">
+    <div id="izgara" class="izgara"></div>
+    <div id="cozunurlukUyari" class="uyari-kutu gizli"></div>
+    <label for="etiket">Müşteri / dönem (isteğe bağlı, dosya adı olur)</label>
+    <input id="etiket" type="text" placeholder="ör. Örnek Lokanta Eylül" maxlength="60">
+    <div class="sadece-masraf">
+      <label for="hazirlayan">Hazırlayan (listenin üstüne yazılır)</label>
+      <input id="hazirlayan" type="text" maxlength="40" autocomplete="name">
+    </div>
+    <label class="toggle"><input id="hizli" type="checkbox"> Hızlı mod (tek okuma, yarı sürede ama daha az kontrollü)</label>
+    <div style="height:12px"></div>
+    <button class="birincil" id="gonder" disabled>Excel'e çevir</button>
+    <div id="yukleme" class="gizli"><div class="cubuk"><i id="yuklemeCubuk"></i></div>
+      <div class="not" id="yuklemeYazi">Yükleniyor…</div></div>
+    <div id="gonderHata" class="hata-kutu gizli"></div>
+    <p class="not">İş sunucuda sürer. Sayfayı kapatabilirsiniz, bitince aşağıdaki listeden indirirsiniz.</p>
+  </section>
+
+  <section class="kart">
+    <h2>İşler</h2>
+    <div id="isler"><p class="not">Henüz iş yok.</p></div>
+  </section>
+
+  <section class="kart sadece-z" id="hesaplar">
+    <h2>Luca hesap kodları</h2>
+    <p class="not" style="margin:0 0 6px">Her müşterinin hesap planı farklı. Burada girdiğiniz kodlar o müşterinin bütün Luca dosyalarında kullanılır.</p>
+    <label for="hesapFirma">Müşteri</label>
+    <select id="hesapFirma"></select>
+    <form id="hesapForm" class="gizli">
+      <div class="hesap-izgara">
+        <label>Kasa (nakit)<input name="kasa" type="text" inputmode="decimal"></label>
+        <label>POS / kredi kartı<input name="pos" type="text" inputmode="decimal"></label>
+        <label>Diğer ödeme<input name="diger_odeme" type="text" inputmode="decimal"></label>
+      </div>
+      <table class="oran-tablo">
+        <thead><tr><th>KDV</th><th>Satış (600)</th><th>Hesaplanan KDV (391)</th></tr></thead>
+        <tbody>
+          <tr><td>%1</td><td><input name="satis_1" type="text" inputmode="decimal"></td><td><input name="kdv_1" type="text" inputmode="decimal"></td></tr>
+          <tr><td>%10</td><td><input name="satis_10" type="text" inputmode="decimal"></td><td><input name="kdv_10" type="text" inputmode="decimal"></td></tr>
+          <tr><td>%20</td><td><input name="satis_20" type="text" inputmode="decimal"></td><td><input name="kdv_20" type="text" inputmode="decimal"></td></tr>
+        </tbody>
+      </table>
+      <label>Faaliyet kodu (işletme defteri, ör. 432101)<input name="faaliyet_kodu" type="text" inputmode="numeric" class="tam"></label>
+      <div class="hesap-izgara">
+        <label>Açıklama başı<input name="aciklama" type="text"></label>
+        <label>Fiş no<select name="fis_no"><option value="z_no">Z numarası</option><option value="bos">Boş (Luca versin)</option></select></label>
+      </div>
+      <button class="birincil" type="submit" style="margin-top:12px">Kaydet</button>
+      <p class="not" id="hesapDurum"></p>
+    </form>
+  </section>
+  </div>
+</div>
+
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const secilen = [];   // {dosya, url, gen, yuk}
+const MIN_KENAR = 2000;  // WhatsApp normal fotoyu uzun kenarda 1600'e indiriyor
+let yoklayici = null;
+
+async function api(yol, secenek = {}) {
+  const r = await fetch(yol, {credentials: "same-origin", ...secenek});
+  if (r.status === 401) { girisGoster(); throw new Error("giriş gerekli"); }
+  if (!r.ok) {
+    let m = r.statusText; try { m = (await r.json()).detail || m; } catch (_) {}
+    throw new Error(m);
+  }
+  return r.json();
+}
+
+function girisGoster() { $("#giris").classList.remove("gizli"); $("#uygulama").classList.add("gizli"); }
+function uygulamaGoster() { $("#giris").classList.add("gizli"); $("#uygulama").classList.remove("gizli"); }
+
+$("#girisForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const fd = new FormData(); fd.append("sifre", $("#sifre").value);
+  try {
+    await api("/api/giris", {method: "POST", body: fd});
+    $("#girisHata").classList.add("gizli"); uygulamaGoster(); isleriYukle();
+  } catch (err) { $("#girisHata").textContent = err.message; $("#girisHata").classList.remove("gizli"); }
+});
+
+// --- foto secimi -------------------------------------------------------------
+$("#cekBtn").onclick = () => $("#cek").click();
+$("#secBtn").onclick = () => $("#sec").click();
+for (const id of ["#cek", "#sec"]) $(id).addEventListener("change", e => {
+  for (const f of e.target.files) ekle(f);
+  e.target.value = "";
+});
+
+function ekle(dosya) {
+  const url = URL.createObjectURL(dosya);
+  const o = {dosya, url, gen: 0, yuk: 0};
+  secilen.push(o);
+  const img = new Image();
+  img.onload = () => { o.gen = img.naturalWidth; o.yuk = img.naturalHeight; ciz(); };
+  img.onerror = () => { o.hata = true; ciz(); };
+  img.src = url;
+  ciz();
+}
+
+function ciz() {
+  const iz = $("#izgara"); iz.innerHTML = "";
+  secilen.forEach((o, i) => {
+    const d = document.createElement("div"); d.className = "kucuk";
+    const uzun = Math.max(o.gen, o.yuk);
+    const rozet = o.hata ? `<span class="rozet kotu">açılamadı</span>` : !uzun ? "" :
+      `<span class="rozet ${uzun >= MIN_KENAR ? "iyi" : "kotu"}">${o.gen}×${o.yuk}</span>`;
+    d.innerHTML = `<img src="${o.url}" alt="">${rozet}<button class="sil" aria-label="Kaldır">×</button>`;
+    d.querySelector(".sil").onclick = () => { URL.revokeObjectURL(o.url); secilen.splice(i, 1); ciz(); };
+    iz.appendChild(d);
+  });
+  const kucuk = secilen.filter(o => o.gen && Math.max(o.gen, o.yuk) < MIN_KENAR).length;
+  const u = $("#cozunurlukUyari");
+  if (kucuk) {
+    u.textContent = `${kucuk} fotoğraf düşük çözünürlüklü (sarı). Büyük ihtimalle WhatsApp küçültmüş. ` +
+      `Okunur ama hata riski artar; mümkünse fişin aslını çekin ya da "Belge" olarak alın.`;
+    u.classList.remove("gizli");
+  } else u.classList.add("gizli");
+  $("#gonder").disabled = !secilen.length;
+  const dy = (typeof mod !== "undefined" && mod === "masraf") ? "masraf listesine çevir" : "Excel'e çevir";
+  $("#gonder").textContent = secilen.length ? `${secilen.length} fotoğrafı ${dy}` : dy.charAt(0).toUpperCase() + dy.slice(1);
+}
+
+// --- gonder ------------------------------------------------------------------
+$("#gonder").onclick = () => {
+  const fd = new FormData();
+  secilen.forEach(o => fd.append("fotolar", o.dosya, o.dosya.name || "foto.jpg"));
+  fd.append("etiket", $("#etiket").value);
+  fd.append("okuma", $("#hizli").checked ? "1" : "2");
+  fd.append("tur", mod);
+  fd.append("hazirlayan", $("#hazirlayan").value);
+  try { localStorage.setItem("zr-hazirlayan", $("#hazirlayan").value); } catch (_) {}
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/is");
+  $("#gonder").disabled = true; $("#yukleme").classList.remove("gizli"); $("#gonderHata").classList.add("gizli");
+  xhr.upload.onprogress = e => {
+    if (!e.lengthComputable) return;
+    const y = Math.round(e.loaded / e.total * 100);
+    $("#yuklemeCubuk").style.width = y + "%";
+    $("#yuklemeYazi").textContent = y < 100 ? `Yükleniyor… %${y}` : "Sunucu kontrol ediyor…";
+  };
+  xhr.onload = () => {
+    $("#yukleme").classList.add("gizli");
+    if (xhr.status === 401) return girisGoster();
+    if (xhr.status !== 200) {
+      let m = "Yükleme başarısız"; try { m = JSON.parse(xhr.responseText).detail || m; } catch (_) {}
+      $("#gonderHata").textContent = m; $("#gonderHata").classList.remove("gizli"); $("#gonder").disabled = false;
+      return;
+    }
+    secilen.splice(0).forEach(o => URL.revokeObjectURL(o.url));
+    $("#etiket").value = ""; ciz(); isleriYukle();
+  };
+  xhr.onerror = () => {
+    $("#yukleme").classList.add("gizli"); $("#gonder").disabled = false;
+    $("#gonderHata").textContent = "Bağlantı koptu, tekrar deneyin."; $("#gonderHata").classList.remove("gizli");
+  };
+  xhr.send(fd);
+};
+
+// --- is listesi ----------------------------------------------------------------
+const DURUM = {sirada: "Sırada", isleniyor: "İşleniyor", bitti: "Hazır", hata: "Hata"};
+const kacis = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function ilerleme(is) {
+  const son = [...(is.mesajlar || [])].reverse().find(m => /\[\d+\/\d+\]/.test(m));
+  const m = son && son.match(/\[(\d+)\/(\d+)\]/);
+  return m ? +m[1] / +m[2] : 0;
+}
+
+function isCiz(is) {
+  const ad = is.etiket || (is.ozet && is.ozet[0] && is.ozet[0].firma) || `${is.foto} fotoğraf`;
+  const zaman = new Date(is.olustu).toLocaleString("tr-TR", {day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit"});
+  let govde = "";
+  if (is.durum === "sirada") govde = `<div class="not">${is.sira > 1 ? `Sırada ${is.sira}.` : "Birazdan başlayacak."} Tahmini süre ~${is.tahmini_dk} dk.</div>`;
+  if (is.durum === "isleniyor") {
+    const p = ilerleme(is);
+    const kalan = Math.max(1, Math.round(is.tahmini_dk * (1 - p)));
+    govde = `<div class="cubuk"><i style="width:${Math.max(4, p * 100)}%"></i></div>
+      <div class="not">Okunuyor… kalan ~${kalan} dk</div>`;
+  }
+  if (is.durum === "bitti" && is.tur === "masraf") {
+    const m = is.masraf_ozet || {};
+    govde = `<div class="sayilar"><span>${m.fis || 0} masraf + ${m.akaryakit || 0} akaryakıt fişi${m.ilk ? ` · ${kacis(m.ilk)}–${kacis(m.son)}` : ""}</span>
+        ${m.hata ? `<span class="s-h">${m.hata} kırmızı</span>` : ""}${m.uyari ? `<span class="s-u">${m.uyari} sarı</span>` : ""}
+        ${m.tekrar ? `<span class="s-d">${m.tekrar} tekrar çıkarıldı</span>` : ""}</div>
+      <a class="dugme indir" href="/api/is/${is.id}/excel">⬇ Masraf listesi (Excel)</a>` +
+      (m.olmayan && m.olmayan.length ? `<div class="not">Listeye alınmayan belgeler: ${m.olmayan.map(kacis).join(" | ")}</div>` : "") +
+      (m.tasan && m.tasan.length ? `<div class="hata-kutu">Şablon 80 satır; ${m.tasan.length} fiş sığmadı: ${m.tasan.map(kacis).join(", ")}</div>` : "");
+  } else if (is.durum === "bitti") {
+    govde = (is.ozet || []).map(o => `<div class="sayilar">
+        <span>${kacis(o.firma)} · ${o.z} Z${o.ilk ? ` · ${o.ilk}–${o.son}` : ""}</span>
+        ${o.hata ? `<span class="s-h">${o.hata} kırmızı</span>` : ""}
+        ${o.uyari ? `<span class="s-u">${o.uyari} sarı</span>` : ""}
+        ${o.duzeltme ? `<span class="s-d">${o.duzeltme} düzeltildi</span>` : ""}
+      </div>`).join("") +
+      `<a class="dugme indir" href="/api/is/${is.id}/excel">⬇ Excel (Özet + Detay)</a>
+       <div class="indir-satir"><a class="dugme indir luca-dugme" href="/api/is/${is.id}/luca">⬇ Luca bilanço</a>
+        <a class="dugme indir luca-dugme" href="/api/is/${is.id}/luca-isletme">⬇ Luca işletme</a></div>` +
+      lucaNot(is.luca);
+  }
+  if (is.durum === "hata") govde = `<div class="hata-kutu">${kacis(is.hata || "bilinmeyen hata")}</div>`;
+  const son = (is.mesajlar || []).slice(-1)[0];
+  return `<div class="is"><div class="is-ust"><span class="is-ad">${kacis(ad)}</span>
+    <span class="etiket e-${is.durum}">${DURUM[is.durum] || is.durum}</span></div>
+    <div class="not" style="margin-top:2px">${zaman} · ${is.foto} fotoğraf${is.okuma === 1 ? " · hızlı" : ""}</div>
+    ${govde}${son && is.durum !== "bitti" ? `<div class="son-mesaj">${kacis(son)}</div>` : ""}</div>`;
+}
+
+function lucaNot(l) {
+  if (!l) return "";
+  let h = "";
+  if (l.tahmini_kodlar && l.tahmini_kodlar.length)
+    h += `<div class="uyari-kutu">Luca dosyasında <b>kontrol edilmemiş hesap kodu</b> var: ${l.tahmini_kodlar.map(kacis).join(", ")}.
+      Aşağıdaki "Luca hesap kodları"ndan bu müşterinin kodlarını girin, sonra yeniden indirin.</div>`;
+  if (l.aktarilmayan && l.aktarilmayan.length)
+    h += `<div class="hata-kutu">${l.aktarilmayan.length} Z raporu Luca dosyasına <b>alınmadı</b> (rakamları çözülemedi):
+      ${l.aktarilmayan.map(a => `${kacis(a.tarih || "?")} Z ${kacis(a.z_no || "?")}`).join(", ")}. Excel'deki kırmızıya bakıp elle girin.</div>`;
+  return h;
+}
+
+// --- Luca hesap kodlari ----------------------------------------------------------
+let hesapListesi = [];
+async function hesaplariYukle() {
+  try { hesapListesi = await api("/api/hesaplar"); } catch (_) { return; }
+  const sec = $("#hesapFirma");
+  const onceki = sec.value;
+  sec.innerHTML = hesapListesi.length ? hesapListesi.map(h => `<option value="${kacis(h.vkn)}">${kacis(h.firma)} (${kacis(h.vkn)})</option>`).join("")
+    : `<option value="">Henüz işlenmiş müşteri yok</option>`;
+  if (onceki && hesapListesi.some(h => h.vkn === onceki)) sec.value = onceki;
+  hesapFormDoldur();
+}
+function hesapFormDoldur() {
+  const h = hesapListesi.find(x => x.vkn === $("#hesapFirma").value);
+  const f = $("#hesapForm");
+  f.classList.toggle("gizli", !h);
+  if (!h) return;
+  const k = h.kodlar;
+  for (const a of ["kasa", "pos", "diger_odeme", "aciklama"]) f.elements[a].value = k[a] || "";
+  f.elements.fis_no.value = k.fis_no || "z_no";
+  f.elements.faaliyet_kodu.value = ((h.ozel || {}).isletme || {}).faaliyet_kodu || "";
+  for (const o of ["1", "10", "20"]) {
+    f.elements["satis_" + o].value = (k.satis || {})[o] || "";
+    f.elements["kdv_" + o].value = (k.kdv || {})[o] || "";
+  }
+  $("#hesapDurum").textContent = Object.keys(h.ozel || {}).length ? "Bu müşteri için kaydedilmiş kodlar." :
+    "Varsayılan kodlar gösteriliyor (genel hesap planı). Bu müşteriye göre düzeltip kaydedin.";
+}
+$("#hesapFirma").addEventListener("change", hesapFormDoldur);
+$("#hesapForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target, vkn = $("#hesapFirma").value;
+  const govde = {kasa: f.elements.kasa.value, pos: f.elements.pos.value, diger_odeme: f.elements.diger_odeme.value,
+    aciklama: f.elements.aciklama.value, fis_no: f.elements.fis_no.value, satis: {}, kdv: {},
+    isletme: {faaliyet_kodu: f.elements.faaliyet_kodu.value}};
+  for (const o of ["1", "10", "20"]) { govde.satis[o] = f.elements["satis_" + o].value; govde.kdv[o] = f.elements["kdv_" + o].value; }
+  try {
+    await api("/api/hesaplar/" + encodeURIComponent(vkn), {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify(govde)});
+    $("#hesapDurum").textContent = "Kaydedildi. Luca dosyasını yeniden indirince yeni kodlar kullanılır.";
+    await hesaplariYukle();
+  } catch (err) { $("#hesapDurum").textContent = "Kaydedilemedi: " + err.message; }
+});
+
+let sonListe = [];
+function isleriCiz() {
+  const benim = sonListe.filter(i => (i.tur || "z") === mod);
+  $("#isler").innerHTML = benim.length ? benim.map(isCiz).join("") : `<p class="not">Bu bölümde henüz iş yok.</p>`;
+}
+
+async function isleriYukle() {
+  try {
+    const liste = await api("/api/isler");
+    uygulamaGoster();
+    sonListe = liste;
+    isleriCiz();
+    if (!hesapListesi.length || liste.some(i => i.durum === "bitti" && i.ozet && i.ozet.some(o => o.vkn && !hesapListesi.some(h => h.vkn === o.vkn)))) hesaplariYukle();
+    const aktif = liste.some(i => i.durum === "sirada" || i.durum === "isleniyor");
+    clearTimeout(yoklayici);
+    if (aktif) yoklayici = setTimeout(isleriYukle, 10000);
+  } catch (_) {}
+}
+
+const REHBER = {z: ["#rehber", "#rehberDugme", "#rehberGovde"], masraf: ["#rehberM", "#rehberMDugme", "#rehberMGovde"]};
+function rehber(acik, m = mod) {
+  const [, d, g] = REHBER[m];
+  $(g).classList.toggle("gizli", !acik);
+  $(d).textContent = acik ? "Gizle" : "Göster";
+  $(d).setAttribute("aria-expanded", acik);
+  try { localStorage.setItem("zr-rehber-" + m, acik ? "acik" : "kapali"); } catch (_) {}
+}
+for (const m of ["z", "masraf"]) {
+  $(REHBER[m][1]).onclick = () => rehber($(REHBER[m][2]).classList.contains("gizli"), m);
+  try {
+    const eski = m === "z" ? localStorage.getItem("zr-rehber") : null;  // onceki surumun tercihi
+    if ((localStorage.getItem("zr-rehber-" + m) || eski) === "kapali") rehber(false, m);
+  } catch (_) {}
+}
+$("#kuralGit").onclick = () => { rehber(true); $(REHBER[mod][0]).scrollIntoView({behavior: "smooth"}); };
+
+// --- bolum secimi (sag bant / ust sekmeler) ------------------------------------------
+let mod = "z";
+const MOD_YAZI = {
+  z: {baslik: "Yeni Z raporu işi", etiket: "ör. Örnek Lokanta Eylül", dugme: "Excel'e çevir"},
+  masraf: {baslik: "Yeni masraf listesi", etiket: "ör. Örnek Lokanta Eylül masrafları", dugme: "Masraf listesine çevir"},
+};
+function modSec(m, kaydir) {
+  mod = m === "masraf" ? "masraf" : "z";
+  document.body.classList.toggle("mod-masraf", mod === "masraf");
+  document.body.classList.toggle("mod-z", mod === "z");
+  for (const b of document.querySelectorAll(".menu-ogesi")) {
+    b.classList.toggle("aktif", b.dataset.mod === mod);
+    b.setAttribute("aria-current", b.dataset.mod === mod ? "page" : "false");
+  }
+  $("#yeniBaslik").textContent = MOD_YAZI[mod].baslik;
+  $("#etiket").placeholder = MOD_YAZI[mod].etiket;
+  ciz();
+  isleriCiz();
+  try { localStorage.setItem("zr-mod", mod); } catch (_) {}
+  if (location.hash !== "#" + mod) history.replaceState(null, "", "#" + mod);
+  if (kaydir) window.scrollTo({top: 0, behavior: "smooth"});
+}
+for (const b of document.querySelectorAll(".menu-ogesi")) b.onclick = () => modSec(b.dataset.mod, true);
+try { $("#hazirlayan").value = localStorage.getItem("zr-hazirlayan") || ""; } catch (_) {}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) isleriYukle(); });
+let ilkMod = location.hash.slice(1);
+try { if (!ilkMod) ilkMod = localStorage.getItem("zr-mod") || "z"; } catch (_) { ilkMod = ilkMod || "z"; }
+modSec(ilkMod);
+isleriYukle();
+</script>
+</body>
+</html>
