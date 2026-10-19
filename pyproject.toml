@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "z-rapor-okuyucu"
+version = "0.1.0"
+description = "Yazar kasa Z raporu fotoğraflarını bir görsel dil modeliyle okur, rakamları 7 aritmetik ve tutarlılık kontrolünden geçirir, kontrollü Excel ve Luca içe aktarım dosyaları üretir."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Ahmet Said Kara" }]
+dependencies = ["anthropic", "openpyxl", "Pillow"]
+
+[project.optional-dependencies]
+web = ["fastapi", "uvicorn", "python-multipart"]
+test = ["pytest"]
+
+[project.scripts]
+z-rapor = "zrapor.cli:main"
+
+[tool.setuptools]
+packages = ["zrapor"]
+
+[tool.setuptools.package-data]
+zrapor = ["sablonlar/*", "static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

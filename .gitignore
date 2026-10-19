@@ -1,0 +1,26 @@
+# Çalışma ve önbellek
+calisma/
+_okumalar/
+.env
+
+# Fotoğraflar (örnekler hariç)
+*.jpg
+*.jpeg
+*.png
+*.heic
+*.webp
+!ornekler/*.png
+
+# Excel çıktıları (örnekler ve şablonlar hariç)
+*.xlsx
+!ornekler/*.xlsx
+!zrapor/sablonlar/*.xlsx
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+*.egg-info/
+build/
+dist/
