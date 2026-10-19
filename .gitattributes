@@ -2,3 +2,4 @@
 *.xlsx binary
 *.png binary
 *.csv -text
+*.cmd.ornek text eol=crlf

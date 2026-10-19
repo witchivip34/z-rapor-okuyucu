@@ -1,0 +1,24 @@
+@echo off
+rem Yerel sunucu + isteğe bağlı Cloudflare tüneli (Windows).
+rem Kopyalayın (baslat.cmd), yer tutucuları değiştirin ve çift tıklayın.
+rem Tünel için deploy\cloudflared.ornek.yml'yi config.yml olarak hazırlayın; istemezseniz TUNEL_AYARI boş kalsın.
+chcp 65001 >nul
+setlocal
+
+set "PROJE=C:\YOL\z-rapor-okuyucu"
+set "VERI=C:\YOL\calisma"
+set "PORT=8765"
+set "TUNEL_AYARI="
+set "TUNEL_ADI=ORNEK_TUNEL"
+
+cd /d "%PROJE%"
+call .venv\Scripts\activate.bat
+
+set "BAYRAK="
+if not "%TUNEL_AYARI%"=="" (
+  start "zrapor-tunel" /min cloudflared tunnel --config "%TUNEL_AYARI%" run %TUNEL_ADI%
+  set "BAYRAK=--guvenilir-vekil"
+)
+
+z-rapor web --host 127.0.0.1 --port %PORT% --veri "%VERI%" %BAYRAK%
+endlocal

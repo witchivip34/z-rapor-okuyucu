@@ -1,0 +1,16 @@
+# Cloudflare Tunnel örneği: telefon sayfasını kendi alan adınızda, bilgisayarda port açmadan yayınlar.
+# Kurulum (bir kez):
+#   cloudflared tunnel login
+#   cloudflared tunnel create ORNEK_TUNEL          # kimlik bilgisi dosyası oluşturur
+#   cloudflared tunnel route dns ORNEK_TUNEL zrapor.ornek.com
+# Bu dosyayı config.yml adıyla kaydedip yer tutucuları değiştirin, sonra:
+#   cloudflared tunnel --config config.yml run ORNEK_TUNEL
+# Sunucuyu --guvenilir-vekil ile başlatın (giriş sınırı gerçek istemci adresine göre işlesin).
+
+tunnel: ORNEK_TUNEL
+credentials-file: /YOL/KIMLIK_DOSYASI.json   # `tunnel create` çıktısındaki dosya; depoya koymayın
+
+ingress:
+  - hostname: zrapor.ornek.com
+    service: http://127.0.0.1:8765
+  - service: http_status:404

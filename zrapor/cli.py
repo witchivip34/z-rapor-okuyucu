@@ -7,7 +7,7 @@
     z-rapor yenile --veri ./calisma --is <id>           (telefon sayfasının bir işini yeniden üret)
     z-rapor luca <raporlar.json> --tur bilanco|isletme [--hesaplar h.json] -o dosya
     z-rapor masraf <foto|klasör>... -o liste.xlsx [--hazirlayan AD]
-    z-rapor web [--port 8765] [--veri ./calisma]
+    z-rapor web [--host 127.0.0.1] [--port 8765] [--veri ./calisma] [--guvenilir-vekil]
 """
 from __future__ import annotations
 
@@ -69,11 +69,14 @@ def _ayristirici() -> argparse.ArgumentParser:
 
     p = alt.add_parser("web", help="telefon yükleme sayfası")
     p.add_argument("--port", type=int, default=VARSAYILAN_PORT)
-    p.add_argument("--host", default="127.0.0.1")
+    p.add_argument("--host", default="127.0.0.1",
+                   help="dinlenecek adres; 0.0.0.0 yerel ağa açar (varsayılan: %(default)s, yalnız bu bilgisayar)")
     p.add_argument("--veri", default=str(VARSAYILAN_CALISMA), help="iş kuyruğu ve hesap kodları klasörü")
     p.add_argument("--arka-uc", default=os.environ.get("ZRAPOR_ARKA_UC") or VARSAYILAN_ARKA_UC, choices=ARKA_UCLAR,
                    help="okuma arka ucu; ortamda ZRAPOR_ARKA_UC (varsayılan: %(default)s)")
     p.add_argument("--model", default=VARSAYILAN_MODEL)
+    p.add_argument("--guvenilir-vekil", action="store_true",
+                   help="ters vekil/tünel arkasında: giriş sınırı için istemci adresini X-Forwarded-For'dan al")
     return ap
 
 
@@ -148,7 +151,8 @@ def _masraf(a) -> None:
 def _web(a) -> None:
     from .web import calistir
 
-    calistir(port=a.port, host=a.host, veri=Path(a.veri), model=a.model, arka_uc=a.arka_uc)
+    calistir(port=a.port, host=a.host, veri=Path(a.veri), model=a.model, arka_uc=a.arka_uc,
+             guvenilir_vekil=a.guvenilir_vekil)
 
 
 KOMUTLAR = {"oku": _oku, "dogrula": _dogrula, "yenile": _yenile, "luca": _luca, "masraf": _masraf, "web": _web}

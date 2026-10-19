@@ -1,0 +1,24 @@
+# systemd birimi örneği (Linux sunucu). Yer tutucuları değiştirip
+# /etc/systemd/system/zrapor-web.service olarak kaydedin:
+#   sudo systemctl daemon-reload && sudo systemctl enable --now zrapor-web
+#   journalctl -u zrapor-web -f
+# Parola ve API anahtarları /YOL/z-rapor-okuyucu/.env dosyasında durur (ZRAPOR_SIFRE zorunlu).
+
+[Unit]
+Description=z-rapor-okuyucu telefon sayfasi
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=zrapor
+WorkingDirectory=/YOL/z-rapor-okuyucu
+EnvironmentFile=-/YOL/z-rapor-okuyucu/.env
+ExecStart=/YOL/z-rapor-okuyucu/.venv/bin/z-rapor web --host 127.0.0.1 --port 8765 --veri /YOL/calisma --guvenilir-vekil
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

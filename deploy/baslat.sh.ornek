@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+# Yerel sunucu + isteğe bağlı Cloudflare tüneli (Linux/macOS).
+# Kopyalayın (baslat.sh), yer tutucuları değiştirin, `chmod +x baslat.sh && ./baslat.sh`.
+# Tünel için deploy/cloudflared.ornek.yml'yi config.yml olarak hazırlayın; istemezseniz TUNEL_AYARI boş kalsın.
+set -eu
+
+PROJE="/YOL/z-rapor-okuyucu"
+VERI="/YOL/calisma"
+PORT=8765
+TUNEL_AYARI=""            # örn. "/YOL/config.yml"
+TUNEL_ADI="ORNEK_TUNEL"
+
+cd "$PROJE"
+. .venv/bin/activate      # .env (ZRAPOR_SIFRE, API anahtarları) proje klasöründen okunur
+
+if [ -n "$TUNEL_AYARI" ]; then
+  cloudflared tunnel --config "$TUNEL_AYARI" run "$TUNEL_ADI" &
+  TUNEL_PID=$!
+  trap 'kill "$TUNEL_PID" 2>/dev/null || true' EXIT INT TERM
+  exec_bayrak="--guvenilir-vekil"
+else
+  exec_bayrak=""
+fi
+
+z-rapor web --host 127.0.0.1 --port "$PORT" --veri "$VERI" $exec_bayrak

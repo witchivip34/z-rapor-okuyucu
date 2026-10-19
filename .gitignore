@@ -24,3 +24,12 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+
+# Kişisel dağıtım kopyaları (yalnız *.ornek dosyaları depoda)
+deploy/*
+!deploy/*.ornek
+!deploy/*.ornek.yml
+/Caddyfile
+/config.yml
+/baslat.sh
+/baslat.cmd

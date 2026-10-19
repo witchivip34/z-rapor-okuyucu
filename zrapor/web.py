@@ -2,7 +2,7 @@
 
     ZRAPOR_SIFRE=...   (zorunlu, en az 8 karakter; ortam değişkeni ya da .env)
     ZRAPOR_ARKA_UC=... (isteğe bağlı: api | cli | gemini | karma; varsayılan api)
-    z-rapor web [--port 8765] [--veri ./calisma] [--arka-uc karma]
+    z-rapor web [--host 127.0.0.1] [--port 8765] [--veri ./calisma] [--arka-uc karma] [--guvenilir-vekil]
 
 İşler sırayla işlenir (API/abonelik limitleri için tek işçi); her iş `<veri>/isler/<id>/` altında:
 fotolar/, cikti/, durum.json. Sayfa kapansa da iş sürer; sunucu yeniden başlarsa yarım işler
@@ -52,6 +52,7 @@ class Ayar:
     sifre: str = ""
     model: str = VARSAYILAN_MODEL
     arka_uc: str = VARSAYILAN_ARKA_UC
+    guvenilir_vekil: bool = False  # True: istemci adresi X-Forwarded-For'dan (ters vekil/tünel arkasında)
     giris_denemeleri: dict[str, list[float]] = field(default_factory=dict)
 
     @property
@@ -82,11 +83,24 @@ def yetki(req: Request) -> None:
         raise HTTPException(401, "giris gerekli")
 
 
+def istemci_ip(req: Request) -> str:
+    """Giriş sınırı için istemci adresi.
+
+    Ters vekil ya da tünel arkasında bütün istekler 127.0.0.1'den gelir ve sınır herkes için ortak
+    olur. `--guvenilir-vekil` açıksa adres X-Forwarded-For'un SON değerinden (vekilin eklediği) alınır;
+    istemcinin kendi yazdığı baştaki değerlere güvenilmez. Vekil yokken açmayın: başlık sahtelenebilir.
+    """
+    if AYAR.guvenilir_vekil:
+        xff = [x.strip() for x in req.headers.get("x-forwarded-for", "").split(",") if x.strip()]
+        if xff:
+            return xff[-1]
+    return req.client.host if req.client else "?"
+
+
 @app.post("/api/giris")
 def giris(req: Request, resp: Response, sifre: str = Form(...)):
-    """Parolayla giriş; 5 dakikada 8 yanlış denemeden sonra geçici kilit."""
-    # Bir tünel/ters vekil arkasında bütün istekler aynı adresten gelir: sınır o zaman ortak olur.
-    ip = req.client.host if req.client else "?"
+    """Parolayla giriş; aynı adresten 5 dakikada 8 yanlış denemeden sonra geçici kilit."""
+    ip = istemci_ip(req)
     simdi = time.time()
     son = [t for t in AYAR.giris_denemeleri.get(ip, []) if simdi - t < 300]
     if len(son) >= 8:
@@ -343,14 +357,19 @@ def sayfa():
 
 
 def calistir(port: int = VARSAYILAN_PORT, host: str = "127.0.0.1", veri: Path = VARSAYILAN_CALISMA,
-             model: str = VARSAYILAN_MODEL, arka_uc: str = VARSAYILAN_ARKA_UC) -> None:
-    """Sunucuyu başlatır. Parola ZRAPOR_SIFRE ortam değişkeninden (ya da .env'den) okunur."""
+             model: str = VARSAYILAN_MODEL, arka_uc: str = VARSAYILAN_ARKA_UC,
+             guvenilir_vekil: bool = False) -> None:
+    """Sunucuyu başlatır. Parola ZRAPOR_SIFRE ortam değişkeninden (ya da .env'den) okunur.
+
+    host="0.0.0.0" sayfayı yerel ağa açar; internete açmak için README'deki "Dışarı açma" bölümü.
+    """
     AYAR.sifre = os.environ.get("ZRAPOR_SIFRE", "")
     if len(AYAR.sifre) < 8:
         raise SystemExit("ZRAPOR_SIFRE ortam degiskeni (ya da .env) en az 8 karakter olmali")
     if arka_uc not in ARKA_UCLAR:
         raise SystemExit(f"bilinmeyen arka uc: {arka_uc} ({' | '.join(ARKA_UCLAR)})")
     AYAR.veri, AYAR.model, AYAR.arka_uc = Path(veri), model, arka_uc
+    AYAR.guvenilir_vekil = guvenilir_vekil
     AYAR.isler_klasoru.mkdir(parents=True, exist_ok=True)
     _yukle_eski_isler()
     threading.Thread(target=isci, daemon=True).start()

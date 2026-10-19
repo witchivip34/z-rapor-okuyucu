@@ -116,6 +116,44 @@ muhtemelen mesajlaşma uygulaması küçültmüş) → "Excel'e çevir". İş s�
 sayfadan girilir ve `<veri>/hesaplar.json` dosyasına yazılır. Sayfa yalnız yerelde açılır; dışarıdan
 erişmek istersen Cloudflare Tunnel ya da ngrok ile kendin aç.
 
+## Dışarı açma
+
+Sayfa varsayılan olarak yalnız bu bilgisayarda (`127.0.0.1`) dinler. Her seçenekte parola
+(`ZRAPOR_SIFRE`, en az 8 karakter) zorunludur ve aynı adresten 5 dakikada 8 yanlış girişten sonra giriş
+geçici olarak kilitlenir. Ters vekil ya da tünel arkasında bütün istekler `127.0.0.1`'den gelir; sınırın
+gerçek istemci adresine göre işlemesi için `--guvenilir-vekil` verin (adres `X-Forwarded-For`'dan okunur).
+Vekil yokken bu bayrağı açmayın, başlık sahtelenebilir. Örnek dosyalar `deploy/` klasöründe; yer
+tutucuları (`/YOL/...`, `ORNEK_TUNEL`, `zrapor.ornek.com`) kendi değerlerinizle değiştirin.
+
+**Yerelde (aynı Wi-Fi'daki telefon):**
+
+```bash
+z-rapor web --host 0.0.0.0 --port 8765 --veri ./calisma
+# telefondan: http://<bilgisayarın yerel IP'si>:8765  (Windows: ipconfig, Linux/macOS: ip a)
+```
+
+**Kendi alan adında (sunucu + Caddy, otomatik HTTPS):**
+
+```bash
+cp deploy/Caddyfile.ornek Caddyfile                 # zrapor.ornek.com -> kendi alan adınız
+sudo cp deploy/zrapor-web.service.ornek /etc/systemd/system/zrapor-web.service   # /YOL'ları düzeltin
+sudo systemctl daemon-reload && sudo systemctl enable --now zrapor-web
+caddy run --config Caddyfile                        # 127.0.0.1:8765'e ters vekil
+```
+
+**Tünelle (port açmadan, Cloudflare Tunnel):**
+
+```bash
+cloudflared tunnel login && cloudflared tunnel create ORNEK_TUNEL
+cloudflared tunnel route dns ORNEK_TUNEL zrapor.ornek.com
+cp deploy/cloudflared.ornek.yml config.yml          # tünel adı, kimlik dosyası, alan adı
+cp deploy/baslat.sh.ornek baslat.sh                 # Windows: deploy/baslat.cmd.ornek -> baslat.cmd
+./baslat.sh                                         # sunucu + tünel, --guvenilir-vekil ile
+```
+
+Kopyaladığınız kişisel dosyalar (`Caddyfile`, `config.yml`, `baslat.sh`, `baslat.cmd` ve `deploy/` altındaki
+`.ornek` uzantısız kopyalar) `.gitignore` ile depo dışında kalır.
+
 ## Luca aktarımı
 
 ```bash

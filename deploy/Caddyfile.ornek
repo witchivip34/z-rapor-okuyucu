@@ -1,0 +1,13 @@
+# Caddy örneği: kendi alan adınızla, otomatik HTTPS sertifikasıyla ters vekil.
+# Alan adının DNS A kaydı bu sunucuyu göstermeli; 80 ve 443 portları açık olmalı.
+# Sunucu yalnız 127.0.0.1'de dinler, dışarıya Caddy açılır:
+#   z-rapor web --host 127.0.0.1 --port 8765 --veri /YOL/calisma --guvenilir-vekil
+#   caddy run --config Caddyfile
+
+zrapor.ornek.com {
+	encode gzip
+	request_body {
+		max_size 1GB
+	}
+	reverse_proxy 127.0.0.1:8765
+}
