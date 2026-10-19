@@ -1,0 +1,372 @@
+{
+ "aciklama": "Uydurma örnek: ÖRNEK LOKANTA, 5 ardışık gün. Z 0103'te departman tutarı bilerek bozuk (kırmızı), Z 0104'te kümülatif toplam bilerek yanlış okunmuş (zincirden düzeltilir, mavi).",
+ "raporlar": [
+  {
+   "firma_unvan": "ÖRNEK LOKANTA",
+   "firma_sahibi": "ÖRNEK KİŞİ",
+   "vergi_dairesi": "ÖRNEK VD",
+   "vkn": "1234567890",
+   "tarih": "01.09.2026",
+   "saat": "23:50",
+   "fis_no": "0612",
+   "z_no": "0101",
+   "eku_no": "0001",
+   "cihaz_sicil_no": "AF AV0000000001",
+   "departmanlar": [
+    {
+     "ad": "Yiyecek",
+     "kdv_orani": 10,
+     "adet": 40,
+     "tutar": 8110.0
+    },
+    {
+     "ad": "İçecek",
+     "kdv_orani": 20,
+     "adet": 35,
+     "tutar": 1240.0
+    }
+   ],
+   "net_satis": 9350.0,
+   "odemeler": [
+    {
+     "tur": "NAKIT",
+     "adet": 9,
+     "tutar": 2450.0
+    },
+    {
+     "tur": "K.KARTI",
+     "adet": 31,
+     "tutar": 6900.0
+    }
+   ],
+   "kasa_nakit": 2450.0,
+   "banka_dokumu": [
+    {
+     "banka": "ÖRNEKBANK",
+     "adet": 31,
+     "tutar": 6900.0
+    }
+   ],
+   "fis_iptal_adet": 0,
+   "fis_iptal_tutar": 0,
+   "musteri_fis_adedi": 40,
+   "mali_fis_adedi": 0,
+   "slip_fis_adedi": 31,
+   "toplam_fis_adedi": 71,
+   "kdv_dokumu": [
+    {
+     "oran": 10,
+     "toplam": 8110.0,
+     "kdv": 737.27
+    },
+    {
+     "oran": 20,
+     "toplam": 1240.0,
+     "kdv": 206.67
+    }
+   ],
+   "mali_toplam": 9350.0,
+   "mali_topkdv": 943.94,
+   "kum_toplam": 1259350.0,
+   "kum_topkdv": 118943.94,
+   "diger_satirlar": [],
+   "emin_olunmayan_alanlar": [],
+   "tam_gorunuyor": true,
+   "_kaynak": "z_01.jpg"
+  },
+  {
+   "firma_unvan": "ÖRNEK LOKANTA",
+   "firma_sahibi": "ÖRNEK KİŞİ",
+   "vergi_dairesi": "ÖRNEK VD",
+   "vkn": "1234567890",
+   "tarih": "02.09.2026",
+   "saat": "23:51",
+   "fis_no": "0652",
+   "z_no": "0102",
+   "eku_no": "0001",
+   "cihaz_sicil_no": "AF AV0000000001",
+   "departmanlar": [
+    {
+     "ad": "Yiyecek",
+     "kdv_orani": 10,
+     "adet": 45,
+     "tutar": 9475.5
+    },
+    {
+     "ad": "İçecek",
+     "kdv_orani": 20,
+     "adet": 40,
+     "tutar": 1385.0
+    }
+   ],
+   "net_satis": 10860.5,
+   "odemeler": [
+    {
+     "tur": "NAKIT",
+     "adet": 11,
+     "tutar": 3140.0
+    },
+    {
+     "tur": "K.KARTI",
+     "adet": 34,
+     "tutar": 7720.5
+    }
+   ],
+   "kasa_nakit": 3140.0,
+   "banka_dokumu": [
+    {
+     "banka": "ÖRNEKBANK",
+     "adet": 34,
+     "tutar": 7720.5
+    }
+   ],
+   "fis_iptal_adet": 1,
+   "fis_iptal_tutar": 45.0,
+   "musteri_fis_adedi": 45,
+   "mali_fis_adedi": 0,
+   "slip_fis_adedi": 34,
+   "toplam_fis_adedi": 79,
+   "kdv_dokumu": [
+    {
+     "oran": 10,
+     "toplam": 9475.5,
+     "kdv": 861.41
+    },
+    {
+     "oran": 20,
+     "toplam": 1385.0,
+     "kdv": 230.83
+    }
+   ],
+   "mali_toplam": 10860.5,
+   "mali_topkdv": 1092.24,
+   "kum_toplam": 1270210.5,
+   "kum_topkdv": 120036.18,
+   "diger_satirlar": [],
+   "emin_olunmayan_alanlar": [],
+   "tam_gorunuyor": true,
+   "_kaynak": "z_02.jpg"
+  },
+  {
+   "firma_unvan": "ÖRNEK LOKANTA",
+   "firma_sahibi": "ÖRNEK KİŞİ",
+   "vergi_dairesi": "ÖRNEK VD",
+   "vkn": "1234567890",
+   "tarih": "03.09.2026",
+   "saat": "23:52",
+   "fis_no": "0692",
+   "z_no": "0103",
+   "eku_no": "0001",
+   "cihaz_sicil_no": "AF AV0000000001",
+   "departmanlar": [
+    {
+     "ad": "Yiyecek",
+     "kdv_orani": 10,
+     "adet": 38,
+     "tutar": 7840.0
+    },
+    {
+     "ad": "İçecek",
+     "kdv_orani": 20,
+     "adet": 33,
+     "tutar": 990.0
+    }
+   ],
+   "net_satis": 8330.0,
+   "odemeler": [
+    {
+     "tur": "NAKIT",
+     "adet": 12,
+     "tutar": 2800.0
+    },
+    {
+     "tur": "K.KARTI",
+     "adet": 26,
+     "tutar": 5530.0
+    }
+   ],
+   "kasa_nakit": 2800.0,
+   "banka_dokumu": [
+    {
+     "banka": "ÖRNEKBANK",
+     "adet": 26,
+     "tutar": 5530.0
+    }
+   ],
+   "fis_iptal_adet": 0,
+   "fis_iptal_tutar": 0,
+   "musteri_fis_adedi": 38,
+   "mali_fis_adedi": 0,
+   "slip_fis_adedi": 26,
+   "toplam_fis_adedi": 64,
+   "kdv_dokumu": [
+    {
+     "oran": 10,
+     "toplam": 7340.0,
+     "kdv": 667.27
+    },
+    {
+     "oran": 20,
+     "toplam": 990.0,
+     "kdv": 165.0
+    }
+   ],
+   "mali_toplam": 8330.0,
+   "mali_topkdv": 832.27,
+   "kum_toplam": 1278540.5,
+   "kum_topkdv": 120868.45,
+   "diger_satirlar": [],
+   "emin_olunmayan_alanlar": [],
+   "tam_gorunuyor": true,
+   "_kaynak": "z_03.jpg"
+  },
+  {
+   "firma_unvan": "ÖRNEK LOKANTA",
+   "firma_sahibi": "ÖRNEK KİŞİ",
+   "vergi_dairesi": "ÖRNEK VD",
+   "vkn": "1234567890",
+   "tarih": "04.09.2026",
+   "saat": "23:53",
+   "fis_no": "0732",
+   "z_no": "0104",
+   "eku_no": "0001",
+   "cihaz_sicil_no": "AF AV0000000001",
+   "departmanlar": [
+    {
+     "ad": "Yiyecek",
+     "kdv_orani": 10,
+     "adet": 49,
+     "tutar": 10220.0
+    },
+    {
+     "ad": "İçecek",
+     "kdv_orani": 20,
+     "adet": 44,
+     "tutar": 1615.0
+    }
+   ],
+   "net_satis": 11835.0,
+   "odemeler": [
+    {
+     "tur": "NAKIT",
+     "adet": 10,
+     "tutar": 2900.0
+    },
+    {
+     "tur": "K.KARTI",
+     "adet": 39,
+     "tutar": 8935.0
+    }
+   ],
+   "kasa_nakit": 2900.0,
+   "banka_dokumu": [
+    {
+     "banka": "ÖRNEKBANK",
+     "adet": 39,
+     "tutar": 8935.0
+    }
+   ],
+   "fis_iptal_adet": 0,
+   "fis_iptal_tutar": 0,
+   "musteri_fis_adedi": 49,
+   "mali_fis_adedi": 0,
+   "slip_fis_adedi": 39,
+   "toplam_fis_adedi": 88,
+   "kdv_dokumu": [
+    {
+     "oran": 10,
+     "toplam": 10220.0,
+     "kdv": 929.09
+    },
+    {
+     "oran": 20,
+     "toplam": 1615.0,
+     "kdv": 269.17
+    }
+   ],
+   "mali_toplam": 11835.0,
+   "mali_topkdv": 1198.26,
+   "kum_toplam": 1280375.5,
+   "kum_topkdv": 122066.71,
+   "diger_satirlar": [],
+   "emin_olunmayan_alanlar": [
+    "kum_toplam: ucuncu hane soluk"
+   ],
+   "tam_gorunuyor": true,
+   "_kaynak": "z_04.jpg"
+  },
+  {
+   "firma_unvan": "ÖRNEK LOKANTA",
+   "firma_sahibi": "ÖRNEK KİŞİ",
+   "vergi_dairesi": "ÖRNEK VD",
+   "vkn": "1234567890",
+   "tarih": "05.09.2026",
+   "saat": "23:54",
+   "fis_no": "0772",
+   "z_no": "0105",
+   "eku_no": "0001",
+   "cihaz_sicil_no": "AF AV0000000001",
+   "departmanlar": [
+    {
+     "ad": "Yiyecek",
+     "kdv_orani": 10,
+     "adet": 43,
+     "tutar": 8890.0
+    },
+    {
+     "ad": "İçecek",
+     "kdv_orani": 20,
+     "adet": 38,
+     "tutar": 1320.0
+    }
+   ],
+   "net_satis": 10210.0,
+   "odemeler": [
+    {
+     "tur": "NAKIT",
+     "adet": 13,
+     "tutar": 3000.0
+    },
+    {
+     "tur": "K.KARTI",
+     "adet": 30,
+     "tutar": 7210.0
+    }
+   ],
+   "kasa_nakit": 3000.0,
+   "banka_dokumu": [
+    {
+     "banka": "ÖRNEKBANK",
+     "adet": 30,
+     "tutar": 7210.0
+    }
+   ],
+   "fis_iptal_adet": 1,
+   "fis_iptal_tutar": 90.0,
+   "musteri_fis_adedi": 43,
+   "mali_fis_adedi": 0,
+   "slip_fis_adedi": 30,
+   "toplam_fis_adedi": 73,
+   "kdv_dokumu": [
+    {
+     "oran": 10,
+     "toplam": 8890.0,
+     "kdv": 808.18
+    },
+    {
+     "oran": 20,
+     "toplam": 1320.0,
+     "kdv": 220.0
+    }
+   ],
+   "mali_toplam": 10210.0,
+   "mali_topkdv": 1028.18,
+   "kum_toplam": 1300585.5,
+   "kum_topkdv": 123094.89,
+   "diger_satirlar": [],
+   "emin_olunmayan_alanlar": [],
+   "tam_gorunuyor": true,
+   "_kaynak": "z_05.jpg"
+  }
+ ]
+}
