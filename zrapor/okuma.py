@@ -4,9 +4,13 @@ Fotoğraf önce büyütülmüş, üst üste binen parçalara bölünür (sıkı�
 küçülüyor), sonra tam fotoğraf + parçalar tek seferde modele verilir. Model her fişi bir kez,
 şemadaki alanlarla döndürür.
 
-İki arka uç:
-    api -> Anthropic Messages API (ANTHROPIC_API_KEY; ortam değişkeni ya da .env)   [varsayılan]
-    cli -> `claude -p` (Claude Code oturumu; API anahtarı gerekmez)
+Arka uçlar:
+    api    -> Anthropic Messages API (ANTHROPIC_API_KEY; ortam değişkeni ya da .env)   [varsayılan]
+    cli    -> `claude -p` (Claude Code oturumu; API anahtarı gerekmez)
+    gemini -> Google Gemini API (GEMINI_API_KEY); tam fotoğraf tek görsel olarak gider
+    karma  -> çapraz okuma: tek numaralı okumalar `api`, çift numaralı okumalar `gemini`.
+              İki farklı model aynı hatayı nadiren yapar; farklar birleştirmede uyarıya düşer.
+              `okuma=1` ise yalnız `api` çalışır.
 
 Sonuçlar `calisma` klasöründe fotoğrafın içerik özetiyle önbelleklenir; aynı fotoğraf aynı model
 ve okuma numarasıyla ikinci kez modele gitmez (`yeniden=True` ile zorlanır).
@@ -19,14 +23,18 @@ import json
 import os
 import shutil
 import subprocess
+import time
 from pathlib import Path
 
 from PIL import Image, ImageOps
 
-from .ayarlar import API_MAKS_TOKEN, VARSAYILAN_ARKA_UC, VARSAYILAN_MODEL, api_modeli
+from .ayarlar import (API_MAKS_TOKEN, GEMINI_URL, VARSAYILAN_ARKA_UC, VARSAYILAN_MODEL, api_modeli,
+                      gemini_modeli)
 from .model import SEMA
 
-ARKA_UCLAR = ("api", "cli")
+ARKA_UCLAR = ("api", "cli", "gemini", "karma")
+GEMINI_EK_NOT = ("\n\nBu okumada yalniz fotografin tamami var (parca yok); rakamlari tam fotograftan, "
+                 "her haneye dikkat ederek oku.")
 
 TALIMAT = """Sen bir mali musavir burosu icin yazar kasa Z RAPORU fislerini okuyorsun. Okudugun
 rakamlar beyannameye girecek: TAHMIN ETME. Okuyamadigin degeri null yaz ve alan adini
@@ -92,6 +100,91 @@ def parcala(foto: Path, hedef: Path) -> list[Path]:
     return yollar
 
 
+def tam_gorsel(foto: Path, hedef: Path, maks: int = 3072) -> list[Path]:
+    """Yönü düzeltilmiş tek tam görüntü (JPEG). Gemini arka ucu parçasız okur."""
+    hedef.mkdir(parents=True, exist_ok=True)
+    im = ImageOps.exif_transpose(Image.open(foto)).convert("RGB")
+    im.thumbnail((maks, maks))
+    yol = hedef / "00_tam.jpg"
+    im.save(yol, quality=92)
+    return [yol]
+
+
+def gemini_semasi(sema: dict) -> dict:
+    """JSON Schema -> Gemini `response_schema` (OpenAPI alt kümesi).
+
+    `{"type": ["number", "null"]}` -> `{"type": "NUMBER", "nullable": true}`; desteklenmeyen
+    anahtarlar atılır.
+    """
+    out: dict = {}
+    tur = sema.get("type")
+    if isinstance(tur, list):
+        asil = [t for t in tur if t != "null"]
+        if "null" in tur:
+            out["nullable"] = True
+        tur = asil[0] if asil else "string"
+    if tur:
+        out["type"] = str(tur).upper()
+    for k in ("description", "enum", "format"):
+        if k in sema:
+            out[k] = sema[k]
+    if "properties" in sema:
+        out["properties"] = {ad: gemini_semasi(alt) for ad, alt in sema["properties"].items()}
+    if "required" in sema:
+        out["required"] = list(sema["required"])
+    if "items" in sema:
+        out["items"] = gemini_semasi(sema["items"])
+    return out
+
+
+def _gemini(gorseller: list[Path], model: str, sema: dict, talimat: str) -> dict:
+    """Google Gemini API (generateContent): görseller inline_data, çıktı şemalı JSON.
+
+    Anahtar `x-goog-api-key` başlığıyla gider (adreste görünmez). 429/5xx'te 3 kez dener.
+    """
+    import httpx  # anthropic'in de bağımlılığı; pyproject'te açıkça yazılı
+
+    anahtar = os.environ.get("GEMINI_API_KEY")
+    if not anahtar:
+        raise RuntimeError("GEMINI_API_KEY tanimli degil (ortam degiskeni ya da .env)")
+    parcalar: list[dict] = [{"inline_data": {"mime_type": "image/jpeg",
+                                             "data": base64.b64encode(g.read_bytes()).decode()}}
+                            for g in gorseller]
+    parcalar.append({"text": talimat})
+    govde = {"contents": [{"role": "user", "parts": parcalar}],
+             "generationConfig": {"response_mime_type": "application/json",
+                                  "response_schema": gemini_semasi(sema), "temperature": 0}}
+    son_hata: Exception | None = None
+    for deneme in range(3):
+        try:
+            r = httpx.post(GEMINI_URL.format(model=model), json=govde, timeout=600,
+                           headers={"x-goog-api-key": anahtar, "Content-Type": "application/json"})
+        except httpx.HTTPError as e:
+            son_hata = e
+        else:
+            if r.status_code == 200:
+                aday = (r.json().get("candidates") or [{}])[0]
+                metin = "".join(p.get("text", "") for p in (aday.get("content") or {}).get("parts", []))
+                if not metin:
+                    raise RuntimeError(f"Gemini bos cevap (finishReason={aday.get('finishReason')})")
+                return json.loads(metin)
+            son_hata = RuntimeError(f"Gemini {r.status_code}: {r.text[:300]}")
+            if r.status_code not in (429, 500, 502, 503, 504):
+                raise son_hata
+        if deneme < 2:
+            time.sleep(2 * (deneme + 1))
+    raise RuntimeError(f"Gemini 3 denemede basarisiz: {son_hata}")
+
+
+def arka_uc_coz(arka_uc: str, deneme: int) -> str:
+    """`karma`yı okuma numarasına göre gerçek arka uca çevirir (tek -> api, çift -> gemini)."""
+    if arka_uc not in ARKA_UCLAR:
+        raise ValueError(f"bilinmeyen arka uc: {arka_uc} ({' | '.join(ARKA_UCLAR)})")
+    if arka_uc == "karma":
+        return "api" if deneme % 2 == 1 else "gemini"
+    return arka_uc
+
+
 def _cli(gorseller: list[Path], model: str, sema: dict, talimat: str) -> dict:
     """`claude -p` ile okur (Claude Code oturumu). Görselleri Read aracıyla açtırır."""
     yedek = Path.home() / ".local" / "bin" / ("claude.exe" if os.name == "nt" else "claude")
@@ -143,19 +236,22 @@ def oku_ham(foto: Path, calisma: Path, sema: dict, talimat: str, model: str = VA
     """Bir fotoğrafı verilen şema ve talimatla okur; ham model çıktısını önbellekten ya da modelden döndürür.
 
     deneme: aynı fotoğrafın bağımsız okuma numarası (çift okuma için ayrı önbellek kaydı).
+    arka_uc="karma": tek numaralı okuma Anthropic API, çift numaralı okuma Gemini.
     """
-    if arka_uc not in ARKA_UCLAR:
-        raise ValueError(f"bilinmeyen arka uc: {arka_uc} ({' | '.join(ARKA_UCLAR)})")
+    arka_uc = arka_uc_coz(arka_uc, deneme)
+    if arka_uc == "gemini":
+        model = gemini_modeli(model)
     calisma.mkdir(parents=True, exist_ok=True)
     anahtar = f"{onek}{foto.stem}_{dosya_ozeti(foto)}_{model}_{arka_uc}" + (f"_o{deneme}" if deneme > 1 else "")
     onbellek = calisma / f"{anahtar}.json"
     if onbellek.exists() and not yeniden:
         return json.loads(onbellek.read_text(encoding="utf-8"))
-    gorseller = parcala(foto, calisma / anahtar)
-    if arka_uc == "api":
-        sonuc = _api(gorseller, api_modeli(model), sema, talimat)
+    if arka_uc == "gemini":
+        sonuc = _gemini(tam_gorsel(foto, calisma / anahtar), model, sema, talimat + GEMINI_EK_NOT)
+    elif arka_uc == "api":
+        sonuc = _api(parcala(foto, calisma / anahtar), api_modeli(model), sema, talimat)
     else:
-        sonuc = _cli(gorseller, model, sema, talimat)
+        sonuc = _cli(parcala(foto, calisma / anahtar), model, sema, talimat)
     onbellek.write_text(json.dumps(sonuc, ensure_ascii=False, indent=1), encoding="utf-8")
     return sonuc
 

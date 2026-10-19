@@ -9,9 +9,9 @@ description = "Yazar kasa Z raporu fotoğraflarını bir görsel dil modeliyle o
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-keywords = ["z raporu", "yazar kasa", "muhasebe", "luca", "ocr", "anthropic"]
+keywords = ["z raporu", "yazar kasa", "muhasebe", "luca", "ocr", "anthropic", "gemini"]
 authors = [{ name = "Ahmet Said Kara" }]
-dependencies = ["anthropic", "openpyxl", "Pillow"]
+dependencies = ["anthropic", "httpx", "openpyxl", "Pillow"]
 
 [project.optional-dependencies]
 web = ["fastapi", "uvicorn", "python-multipart"]

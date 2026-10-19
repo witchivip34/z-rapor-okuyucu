@@ -62,11 +62,24 @@ z-rapor oku fotolar/ -o calisma/eylul.xlsx --okuma 2 --paralel 3
 
 | Seçenek | Varsayılan | Açıklama |
 |---|---|---|
-| `--arka-uc` | `api` | `api`: Anthropic API (`ANTHROPIC_API_KEY`, ortam değişkeni ya da `.env`). `cli`: `claude -p` ile Claude Code oturumu, API anahtarı gerekmez |
-| `--model` | `sonnet` | kısa ad (`sonnet`, `opus`) ya da tam model kimliği; eşlemeler `zrapor/ayarlar.py` içinde |
+| `--arka-uc` | `api` | `api`: Anthropic API (`ANTHROPIC_API_KEY`, ortam değişkeni ya da `.env`). `cli`: `claude -p` ile Claude Code oturumu, API anahtarı gerekmez. `gemini`: Google Gemini API (`GEMINI_API_KEY`). `karma`: 1. okuma `api`, 2. okuma `gemini` |
+| `--model` | `sonnet` | kısa ad (`sonnet`, `opus`) ya da tam model kimliği; eşlemeler `zrapor/ayarlar.py` içinde. Gemini modeli `GEMINI_MODEL` sabitidir (varsayılan `gemini-2.5-pro`) |
 | `--okuma` | `2` | her fotoğraf kaç kez bağımsız okunsun |
 | `--paralel` | `3` | aynı anda kaç model çağrısı |
 | `--yeniden` | kapalı | önbelleği yok say |
+
+### Çapraz okuma (`karma`)
+
+İki anahtar da varsa (`ANTHROPIC_API_KEY` ve `GEMINI_API_KEY`) `--arka-uc karma` önerilir: iki farklı
+model aynı hatayı yapmaz, farklar uyarıya düşer. 1. okuma Anthropic API'siyle (tam görüntü + 9 parça),
+2. okuma Google'ın Gemini API'siyle (tam görüntü, şemalı JSON çıktı) yapılır; birleştirmede iki okuma
+arasındaki her fark sarı uyarı olur, birinin okuyamadığı alan diğerinden dolar. `--okuma 1` verilirse
+yalnız Anthropic okuması yapılır. `oku` ve `masraf` komutlarında ve telefon sayfasında çalışır.
+
+```bash
+z-rapor oku fotolar/ -o calisma/eylul.xlsx --arka-uc karma
+z-rapor masraf masraf_fotolari/ -o masraf_listesi.xlsx --arka-uc karma
+```
 
 Okumalar çıktının yanındaki `_okumalar/` klasöründe fotoğrafın içerik özetiyle önbelleklenir; aynı
 fotoğraf ikinci kez API'ye gitmez.
@@ -170,7 +183,7 @@ iki kez gelirse biri çıkarılır. KDV formülü ve toplam tutarlılığı ayn�
 ## Gizlilik
 
 Fotoğraflar yalnızca seçtiğiniz arka uca gider (`api`: Anthropic API; `cli`: kendi Claude Code
-oturumunuz). Okuma önbelleği, Excel ve hesap kodları yerel diskte kalır. `.gitignore` fotoğrafları,
+oturumunuz; `gemini`: Google Gemini API; `karma`: Anthropic ve Google). Okuma önbelleği, Excel ve hesap kodları yerel diskte kalır. `.gitignore` fotoğrafları,
 `calisma/`, `_okumalar/` ve `.env` dosyasını depo dışında tutar; gerçek müşteri verisini depoya koymayın.
 
 ## Geliştirme

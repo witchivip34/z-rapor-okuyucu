@@ -1,6 +1,6 @@
 """`z-rapor` komut satırı.
 
-    z-rapor oku <foto|klasör>... -o cikti.xlsx [--arka-uc api|cli] [--model sonnet] [--okuma 2]
+    z-rapor oku <foto|klasör>... -o cikti.xlsx [--arka-uc api|cli|gemini|karma] [--model sonnet] [--okuma 2]
                                               [--paralel 3] [--yeniden]
     z-rapor dogrula <okuma.json> -o cikti.xlsx          (API'siz: hazır okumadan kontrol + Excel)
     z-rapor luca <raporlar.json> --tur bilanco|isletme [--hesaplar h.json] -o dosya
@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -22,7 +23,8 @@ from .okuma import ARKA_UCLAR
 
 def _okuma_secenekleri(p: argparse.ArgumentParser) -> None:
     p.add_argument("--arka-uc", default=VARSAYILAN_ARKA_UC, choices=ARKA_UCLAR,
-                   help="api: Anthropic API (ANTHROPIC_API_KEY) | cli: claude -p (varsayılan: %(default)s)")
+                   help="api: Anthropic API (ANTHROPIC_API_KEY) | cli: claude -p | gemini: Google Gemini API "
+                        "(GEMINI_API_KEY) | karma: 1. okuma api, 2. okuma gemini (varsayılan: %(default)s)")
     p.add_argument("--model", default=VARSAYILAN_MODEL, help="kısa ad (sonnet, opus) ya da tam model kimliği")
     p.add_argument("--okuma", type=int, default=2, help="her fotoğraf kaç kez bağımsız okunsun (farklar uyarı olur)")
     p.add_argument("--paralel", type=int, default=3, help="aynı anda kaç model çağrısı")
@@ -60,7 +62,8 @@ def _ayristirici() -> argparse.ArgumentParser:
     p.add_argument("--port", type=int, default=VARSAYILAN_PORT)
     p.add_argument("--host", default="127.0.0.1")
     p.add_argument("--veri", default=str(VARSAYILAN_CALISMA), help="iş kuyruğu ve hesap kodları klasörü")
-    p.add_argument("--arka-uc", default=VARSAYILAN_ARKA_UC, choices=ARKA_UCLAR)
+    p.add_argument("--arka-uc", default=os.environ.get("ZRAPOR_ARKA_UC") or VARSAYILAN_ARKA_UC, choices=ARKA_UCLAR,
+                   help="okuma arka ucu; ortamda ZRAPOR_ARKA_UC (varsayılan: %(default)s)")
     p.add_argument("--model", default=VARSAYILAN_MODEL)
     return ap
 

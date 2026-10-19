@@ -1,7 +1,8 @@
 """Telefon yükleme sayfası: fotoğraf yükle -> kontrollü Excel ve Luca dosyalarını indir.
 
     ZRAPOR_SIFRE=...   (zorunlu, en az 8 karakter; ortam değişkeni ya da .env)
-    z-rapor web [--port 8765] [--veri ./calisma]
+    ZRAPOR_ARKA_UC=... (isteğe bağlı: api | cli | gemini | karma; varsayılan api)
+    z-rapor web [--port 8765] [--veri ./calisma] [--arka-uc karma]
 
 İşler sırayla işlenir (API/abonelik limitleri için tek işçi); her iş `<veri>/isler/<id>/` altında:
 fotolar/, cikti/, durum.json. Sayfa kapansa da iş sürer; sunucu yeniden başlarsa yarım işler
@@ -34,6 +35,7 @@ from PIL import Image
 from . import luca, masraf
 from .ayarlar import VARSAYILAN_ARKA_UC, VARSAYILAN_CALISMA, VARSAYILAN_MODEL, VARSAYILAN_PORT
 from .isleme import isle
+from .okuma import ARKA_UCLAR
 
 SAYFA = Path(__file__).parent / "static" / "web.html"
 CEREZ = "zr"
@@ -346,6 +348,8 @@ def calistir(port: int = VARSAYILAN_PORT, host: str = "127.0.0.1", veri: Path = 
     AYAR.sifre = os.environ.get("ZRAPOR_SIFRE", "")
     if len(AYAR.sifre) < 8:
         raise SystemExit("ZRAPOR_SIFRE ortam degiskeni (ya da .env) en az 8 karakter olmali")
+    if arka_uc not in ARKA_UCLAR:
+        raise SystemExit(f"bilinmeyen arka uc: {arka_uc} ({' | '.join(ARKA_UCLAR)})")
     AYAR.veri, AYAR.model, AYAR.arka_uc = Path(veri), model, arka_uc
     AYAR.isler_klasoru.mkdir(parents=True, exist_ok=True)
     _yukle_eski_isler()

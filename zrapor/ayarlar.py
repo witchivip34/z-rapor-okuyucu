@@ -13,6 +13,11 @@ VARSAYILAN_MODEL = "sonnet"
 VARSAYILAN_ARKA_UC = "api"
 API_MAKS_TOKEN = 16000
 
+# Çapraz okuma için ikinci, bağımsız model: Google Gemini API (GEMINI_API_KEY).
+# `--arka-uc gemini` ve `karma` modunun 2. okuması bu modeli kullanır; kısa ad "gemini".
+GEMINI_MODEL = "gemini-2.5-pro"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+
 # Kabaca maliyet tahmini (README'deki not): bir okuma = 1 tam görsel + 9 büyütülmüş parça.
 # Görsel başına ~1.600 giriş token'ı -> okuma başına ~16-17 bin giriş, ~2-3 bin çıkış token'ı.
 TAHMINI_GIRIS_TOKEN_OKUMA = 17_000
@@ -25,6 +30,11 @@ VARSAYILAN_CALISMA = Path("calisma")
 def api_modeli(ad: str) -> str:
     """Kısa adı ('sonnet') tam model kimliğine çevirir; tanınmayan ad olduğu gibi döner."""
     return API_MODELLERI.get(ad, ad)
+
+
+def gemini_modeli(ad: str) -> str:
+    """'gemini' kısa adı ya da Anthropic kısa adı -> GEMINI_MODEL; 'gemini-...' tam ad olduğu gibi döner."""
+    return ad if ad.startswith("gemini-") else GEMINI_MODEL
 
 
 def env_yukle(yol: Path | str = ".env") -> None:
