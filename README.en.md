@@ -6,9 +6,11 @@ paper every month and type them in by hand.
 
 This tool:
 
-1. **Reads** photos of Z reports with a vision-language model (Anthropic Messages API by default, or the
-   `claude -p` CLI). Each photo is tiled into 9 enlarged overlapping crops and read **twice
-   independently**; disagreements become warnings. The model is told never to guess (unreadable = `null`).
+1. **Reads** photos of Z reports with a vision-language model (Anthropic Messages API by default, the
+   `claude -p` CLI, or the Google Gemini API). Each photo is tiled into 9 enlarged overlapping crops and
+   read **twice independently**; disagreements become warnings. With `--arka-uc karma` the first read uses
+   Anthropic and the second uses Gemini, so two different models cross-check each other. The model is told
+   never to guess (unreadable = `null`).
 2. **Checks** every figure with 7 arithmetic/consistency rules: department sum = net sales = fiscal total =
    VAT breakdown; payments = net sales; VAT formula per rate; bank breakdown = card; counts; the
    **cumulative chain** (today's running total − yesterday's = today's sales), which also lets the code
@@ -18,7 +20,9 @@ This tool:
    template and simplified-ledger CSV). Both templates were verified by importing real period data into
    Luca; account codes differ per office, so do your first import in a test company and check it.
 
-Also included: an expense-receipt list generator and a password-protected mobile upload page (FastAPI).
+Also included: an expense-receipt list generator, a password-protected mobile upload page (FastAPI) with
+example reverse-proxy/tunnel configs in `deploy/`, and `z-rapor yenile`, which rebuilds the checks and
+Excel from cached reads without calling a model.
 
 ```bash
 pip install -e ".[web,test]"

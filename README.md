@@ -19,11 +19,13 @@ eksik günün fark edilmemesidir; bunlar beyanname öncesi yakalanmazsa sonradan
 1. Fotoğrafı büyütüp üst üste binen 9 parçaya böler; tam görüntü + parçalar tek seferde modele gider.
 2. Model her Z raporunu şemadaki alanlarla döndürür. Okuyamadığını `null` bırakır, tahmin etmez.
 3. Her fotoğraf varsayılan olarak **iki kez bağımsız** okunur; iki okuma arasındaki fark uyarı olur.
+   `karma` modunda iki okuma iki farklı modelle (Anthropic + Google Gemini) yapılır ve birbirini denetler.
 4. Rakamlar 7 kontrolden geçer. Aynı fişin diğer rakamlarından ya da önceki/sonraki Z'nin kümülatif
    toplamlarından **kanıtlanabilen** okuma hataları düzeltilir ve işaretlenir.
 5. Excel yazılır (Özet, Detay, Departmanlar, Ödemeler, Kontrol Listesi); istenirse Luca aktarım dosyası.
 
-Ayrıca: masraf fişlerinden "Masraf Listesi" Excel'i ve telefondan yükleme yapılan bir web sayfası.
+Ayrıca: masraf fişlerinden "Masraf Listesi" Excel'i, telefondan yükleme yapılan bir web sayfası ve
+model çağrısı yapmadan önbellekten yeniden üretme (`z-rapor yenile`).
 
 ## Kurulum
 
@@ -54,7 +56,7 @@ dosyaları bundan üretilir.
 ## API ile okuma
 
 ```bash
-cp ornekler/.env.example .env     # ANTHROPIC_API_KEY=... satırını doldurun
+cp ornekler/.env.example .env     # ANTHROPIC_API_KEY=... (karma için GEMINI_API_KEY=... de) doldurun
 python ornekler/uret_fis.py       # ornekler/z_ornek.png (uydurma fiş) zaten var; yeniden çizer
 z-rapor oku ornekler/z_ornek.png -o calisma/deneme.xlsx
 z-rapor oku fotolar/ -o calisma/eylul.xlsx --okuma 2 --paralel 3
@@ -74,7 +76,9 @@ z-rapor oku fotolar/ -o calisma/eylul.xlsx --okuma 2 --paralel 3
 model aynı hatayı yapmaz, farklar uyarıya düşer. 1. okuma Anthropic API'siyle (tam görüntü + 9 parça),
 2. okuma Google'ın Gemini API'siyle (tam görüntü, şemalı JSON çıktı) yapılır; birleştirmede iki okuma
 arasındaki her fark sarı uyarı olur, birinin okuyamadığı alan diğerinden dolar. `--okuma 1` verilirse
-yalnız Anthropic okuması yapılır. `oku` ve `masraf` komutlarında ve telefon sayfasında çalışır.
+yalnız Anthropic okuması yapılır. `oku` ve `masraf` komutlarında ve telefon sayfasında çalışır; telefon
+sayfası için `.env`'e `ZRAPOR_ARKA_UC=karma` yazın ya da `z-rapor web --arka-uc karma` ile başlatın
+(varsayılan `api`; sayfadaki "Hızlı mod" tek okumadır, yalnız Anthropic).
 
 ```bash
 z-rapor oku fotolar/ -o calisma/eylul.xlsx --arka-uc karma
@@ -101,7 +105,8 @@ sayfası çalışıyorsa yeni özeti görmesi için sunucuyu yeniden başlatın.
 **Maliyet notu.** Bir okuma = 1 tam görsel + 9 parça, görsel başına yaklaşık 1.600 giriş token'ı: okuma
 başına kabaca 16-17 bin giriş ve 2-3 bin çıkış token'ı. Varsayılan çift okumayla fotoğraf başına bunun iki
 katı. Bir karede 3 fiş varsa maliyet fişe bölünür. Güncel token fiyatı için Anthropic'in fiyat sayfasına
-bakın; tahmin sabitleri `zrapor/ayarlar.py` içinde.
+bakın; tahmin sabitleri `zrapor/ayarlar.py` içinde. `karma` modunda 2. okuma Gemini'ye tek tam görüntü
+olarak gider; onun maliyeti Google'ın fiyat sayfasına göredir.
 
 ## Telefon sayfası
 
@@ -243,8 +248,10 @@ pip install -e ".[web,test]"
 python -m pytest -q
 ```
 
-Paket düzeni: `model.py` (şema) · `okuma.py` (görsel → JSON) · `kontrol.py` (7 kontrol, birleştirme,
-zincir) · `excel.py` · `luca.py` · `masraf.py` · `web.py` + `static/web.html` · `cli.py`.
+Paket düzeni: `model.py` (şema) · `okuma.py` (görsel → JSON; `api`, `cli`, `gemini`, `karma`) ·
+`kontrol.py` (7 kontrol, birleştirme, zincir) · `excel.py` · `luca.py` · `masraf.py` · `yenile.py`
+(önbellekten yeniden üretme) · `web.py` + `static/web.html` · `cli.py` · `deploy/` (dışarı açma örnekleri).
+Testler model çağırmaz: Anthropic ve Gemini yanıtları sahtelenir.
 
 ## Lisans
 
