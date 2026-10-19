@@ -1,0 +1,16 @@
+# Değişiklik günlüğü
+
+## 0.1.0 — 2026-10-19
+
+İlk herkese açık sürüm.
+
+- `zrapor` paketi ve `z-rapor` komutu: `oku`, `dogrula`, `luca`, `masraf`, `web`.
+- Okuma: Anthropic Messages API (varsayılan) ve `claude -p` arka uçları; tam görüntü + 9 parça;
+  çoklu bağımsız okuma; içerik özetli yerel önbellek.
+- Kontroller: 7 kontrol grubu, kümülatif zincir uzlaştırma (kanıtlanan okuma hatası düzeltilir),
+  firma (VKN) gruplama, tekrar ayıklama.
+- Excel: Özet, Detay, Departmanlar, Ödemeler, Kontrol Listesi; kırmızı/sarı/mavi işaretleme.
+- Luca: bilanço fiş aktarım şablonu ve işletme defteri CSV'si; firma başına hesap kodu dosyası.
+  Gerçek içe aktarım henüz doğrulanmadı.
+- Masraf fişi listesi ve parola korumalı telefon yükleme sayfası.
+- API'siz sentetik örnekler ve pytest testleri.
