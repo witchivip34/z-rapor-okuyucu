@@ -1,0 +1,88 @@
+flowchart TD
+
+subgraph group_entry["User entry"]
+  node_cli["CLI commands<br/>[cli.py]"]
+  node_web["Phone upload<br/>[web.py]"]
+  node_webui["Browser page<br/>[web.html]"]
+end
+
+subgraph group_reading["Reading and reconciliation"]
+  node_schema["Report schema<br/>[model.py]"]
+  node_reader["Photo reader<br/>[okuma.py]"]
+  node_process["Z report workflow<br/>[isleme.py]"]
+  node_checks["Validation and merge<br/>[kontrol.py]"]
+  node_expense["Expense receipts<br/>[masraf.py]"]
+end
+
+subgraph group_outputs["Exports"]
+  node_excel["Reviewed Excel<br/>[excel.py]"]
+  node_luca["Luca export<br/>[luca.py]"]
+  node_files["Generated files"]
+end
+
+subgraph group_support["Supporting services"]
+  node_config["Settings and env<br/>[ayarlar.py]"]
+  node_refresh["Cache regeneration<br/>[yenile.py]"]
+  node_cache[("Reading cache")]
+  node_accounts[("Account mappings")]
+end
+
+node_user(("Operator"))
+node_anthropic{{"Anthropic API"}}
+node_gemini{{"Google Gemini"}}
+node_claude{{"Claude CLI"}}
+
+node_user -->|"runs command"| node_cli
+node_user -->|"uploads photos"| node_web
+node_web -->|"serves page"| node_webui
+node_cli -->|"loads settings"| node_config
+node_cli -->|"runs workflow"| node_process
+node_cli -->|"runs expense mode"| node_expense
+node_cli -->|"runs refresh"| node_refresh
+node_cli -->|"exports Luca files"| node_luca
+node_web -->|"processes Z reports"| node_process
+node_web -->|"processes expenses"| node_expense
+node_web -->|"offers Luca downloads"| node_luca
+node_web -->|"stores account codes"| node_accounts
+node_process -->|"reads photos"| node_reader
+node_reader -->|"uses output schema"| node_schema
+node_reader -->|"calls API"| node_anthropic
+node_reader -->|"calls API"| node_gemini
+node_reader -->|"invokes CLI"| node_claude
+node_process -->|"validates readings"| node_checks
+node_process -->|"writes workbook"| node_excel
+node_checks -->|"supplies findings"| node_excel
+node_process -->|"caches readings"| node_cache
+node_expense -->|"reads receipts"| node_reader
+node_expense -->|"writes expense workbook"| node_files
+node_luca -->|"writes import files"| node_files
+node_excel -->|"writes workbook"| node_files
+node_refresh -->|"reads cached results"| node_cache
+node_refresh -->|"regenerates Z output"| node_process
+node_refresh -->|"regenerates expense output"| node_expense
+
+click node_cli "https://github.com/witchivip34/z-rapor-okuyucu/blob/main/zrapor/cli.py"
+click node_web "https://github.com/witchivip34/z-rapor-okuyucu/blob/main/zrapor/web.py"
+click node_webui "https://github.com/witchivip34/z-rapor-okuyucu/blob/main/zrapor/static/web.html"
+click node_config "https://github.com/witchivip34/z-rapor-okuyucu/blob/main/zrapor/ayarlar.py"
+click node_schema "https://github.com/witchivip34/z-rapor-okuyucu/blob/main/zrapor/model.py"
+click node_reader "https://github.com/witchivip34/z-rapor-okuyucu/blob/main/zrapor/okuma.py"
+click node_process "https://github.com/witchivip34/z-rapor-okuyucu/blob/main/zrapor/isleme.py"
+click node_checks "https://github.com/witchivip34/z-rapor-okuyucu/blob/main/zrapor/kontrol.py"
+click node_excel "https://github.com/witchivip34/z-rapor-okuyucu/blob/main/zrapor/excel.py"
+click node_luca "https://github.com/witchivip34/z-rapor-okuyucu/blob/main/zrapor/luca.py"
+click node_expense "https://github.com/witchivip34/z-rapor-okuyucu/blob/main/zrapor/masraf.py"
+click node_refresh "https://github.com/witchivip34/z-rapor-okuyucu/blob/main/zrapor/yenile.py"
+
+classDef toneNeutral fill:#f8fafc,stroke:#334155,stroke-width:1.5px,color:#0f172a
+classDef toneBlue fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#172554
+classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
+classDef toneMint fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#14532d
+classDef toneRose fill:#ffe4e6,stroke:#e11d48,stroke-width:1.5px,color:#881337
+classDef toneIndigo fill:#e0e7ff,stroke:#4f46e5,stroke-width:1.5px,color:#312e81
+classDef toneTeal fill:#ccfbf1,stroke:#0f766e,stroke-width:1.5px,color:#134e4a
+class node_cli,node_web,node_webui toneBlue
+class node_schema,node_reader,node_process,node_checks,node_expense toneAmber
+class node_excel,node_luca,node_files,node_anthropic toneMint
+class node_config,node_refresh,node_cache,node_accounts toneRose
+class node_user,node_gemini,node_claude toneIndigo

@@ -27,6 +27,12 @@ eksik günün fark edilmemesidir; bunlar beyanname öncesi yakalanmazsa sonradan
 Ayrıca: masraf fişlerinden "Masraf Listesi" Excel'i, telefondan yükleme yapılan bir web sayfası ve
 model çağrısı yapmadan önbellekten yeniden üretme (`z-rapor yenile`).
 
+## Mimari
+
+![Modüller arası akış](docs/mimari.png)
+
+Modüller arası akış. Şema [GitDiagram](https://gitdiagram.com) ile depodan otomatik üretildi; Mermaid kaynağı [`docs/mimari.mmd`](docs/mimari.mmd).
+
 ## Kurulum
 
 Python 3.10 veya üstü:
