@@ -6,7 +6,7 @@ Bilanço: Luca "Fiş Aktarım Şablon" (.xlsx, `sablonlar/bilanco_fis_aktarim_sa
 İşletme defteri: `sablonlar/isletme_hizli_fis_aktarim.csv` (cp1254, ';', 36 kolon, ondalık virgül).
     Z başına KDV oranı başına bir satır.
 
-Hesap kodları: varsayılanlar aşağıda (tekdüzen hesap planı). Firma (VKN) başına geçersiz kılma
+Hesap kodları: varsayılanlar aşağıda (tekdüzen hesap planının ana hesapları). Firma (VKN) başına alt hesaplar
 kullanıcının kendi `hesaplar.json` dosyasından okunur; biçim için `ornekler/hesaplar.ornek.json`.
 
 Her iki şablon Luca'da gerçek dönem verisiyle içe aktarılarak doğrulandı. Hesap kodları büroya göre
@@ -27,19 +27,21 @@ SABLONLAR = Path(__file__).parent / "sablonlar"
 SABLON_BILANCO = SABLONLAR / "bilanco_fis_aktarim_sablon.xlsx"
 SABLON_ISLETME = SABLONLAR / "isletme_hizli_fis_aktarim.csv"
 
-# Varsayılan alt hesaplar. Firmanın hesap planı farklıysa hesaplar.json ile değiştirilir.
+# Varsayılanlar yalnız tekdüzen hesap planının ana hesaplarıdır. Alt hesaplar her firmada farklıdır;
+# firmanın kendi kodları hesaplar.json ile verilir (biçim: ornekler/hesaplar.ornek.json).
 VARSAYILAN: dict = {
-    "kasa": "100.01.001",
-    "pos": "108.01.001",
-    "diger_odeme": "108.01.001",
-    "satis": {"1": "600.01.001", "10": "600.01.002", "20": "600.01.003"},
-    "kdv": {"1": "391.01.001", "10": "391.01.002", "20": "391.01.003"},
+    "kasa": "100",
+    "pos": "108",
+    "diger_odeme": "108",
+    "satis": {"1": "600", "10": "600", "20": "600"},
+    "kdv": {"1": "391", "10": "391", "20": "391"},
     "belge_turu": "ZR",
     "aciklama": "Z RAPORU",
     "fis_no": "z_no",  # "z_no": fiş no = Z no | "bos": Luca numaralasın
 }
 # Firma dosyasında verilmediği sürece "kontrol edilmemiş kod" sayılmayan anahtarlar
-DOGRULANMIS = {"kasa", "pos", "satis.10", "kdv.10", "belge_turu"}
+DOGRULANMIS = {"belge_turu"}
+KOD_ADLARI = {"kasa": "kasa", "pos": "POS", "diger_odeme": "diğer ödeme", "satis": "satış %", "kdv": "KDV %"}
 
 # İşletme defteri kod kolonları (örnek bir Luca Z raporu kaydından)
 ISLETME_VARSAYILAN: dict = {
@@ -115,30 +117,34 @@ def fis_satirlari(r: dict, h: dict) -> list[dict]:
         matrah = round(_t(k["toplam"]) - _t(k["kdv"]), 2)
         if matrah:
             satirlar.append({"hesap": h["satis"].get(o) or f"600.?? (%{o})", "borc": 0, "alacak": matrah,
-                             "detay": aciklama})
+                             "detay": aciklama, "anahtar": f"satis.{o}"})
         if _t(k["kdv"]):
             satirlar.append({"hesap": h["kdv"].get(o) or f"391.?? (%{o})", "borc": 0,
-                             "alacak": round(_t(k["kdv"]), 2), "detay": aciklama})
-    for tur, hesap in (("kart", h["pos"]), ("nakit", h["kasa"]), ("diger", h["diger_odeme"])):
+                             "alacak": round(_t(k["kdv"]), 2), "detay": aciklama, "anahtar": f"kdv.{o}"})
+    for tur, anahtar in (("kart", "pos"), ("nakit", "kasa"), ("diger", "diger_odeme")):
         tutar = round(odeme(r, tur) or 0, 2)
         if tutar:
-            satirlar.append({"hesap": hesap, "borc": tutar, "alacak": 0, "detay": aciklama})
+            satirlar.append({"hesap": h[anahtar], "borc": tutar, "alacak": 0, "detay": aciklama, "anahtar": anahtar})
     # kuruş dengesi: ödemeler ile vergi dökümü arasında yuvarlama farkı kalırsa matraha yaz
     fark = round(sum(s["borc"] for s in satirlar) - sum(s["alacak"] for s in satirlar), 2)
     if fark and abs(fark) <= 0.05:
         for s in satirlar:
-            if s["alacak"] and str(s["hesap"]).startswith("600"):
+            if s["alacak"] and s["anahtar"].startswith("satis."):
                 s["alacak"] = round(s["alacak"] + fark, 2)
                 break
     return satirlar
 
 
 def _tahmini_kod(s: dict, h: dict, ozel: dict) -> str | None:
-    """Satırın hesap kodu ne doğrulanmış varsayılan ne de firmanın kendi kodu ise etiketini döndürür."""
-    anahtar = next((f"{a}.{o}" for a in ("satis", "kdv") for o, kod in h[a].items() if kod == s["hesap"]), None)
-    if anahtar and anahtar not in DOGRULANMIS and anahtar.split(".")[1] not in (ozel.get(anahtar.split(".")[0]) or {}):
-        return f"{s['hesap']} ({anahtar.replace('satis.', 'satış %').replace('kdv.', 'KDV %')})"
-    return None
+    """Satırın hesap kodu firmanın kendi dosyasından gelmiyorsa (varsayılan ana hesapsa) etiketini döndürür."""
+    anahtar = s.get("anahtar") or ""
+    if not anahtar or anahtar in DOGRULANMIS:
+        return None
+    grup, _, oran = anahtar.partition(".")
+    verilen = (ozel.get(grup) or {}).get(oran) if oran else ozel.get(grup)
+    if verilen:
+        return None
+    return f"{s['hesap']} ({KOD_ADLARI.get(grup, grup)}{oran})"
 
 
 def bilanco_yaz(firmalar: dict[str, list[dict]], cikti: Path, hesaplar: dict | None = None) -> dict:

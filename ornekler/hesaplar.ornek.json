@@ -1,9 +1,9 @@
 {
  "1234567890": {
-  "kasa": "100.01.001",
-  "pos": "108.01.001",
-  "satis": {"10": "600.01.002", "20": "600.01.003"},
-  "kdv": {"10": "391.01.002", "20": "391.01.003"},
+  "kasa": "xxxxxxxxxxxxx",
+  "pos": "xxxxxxxxxxxxx",
+  "satis": {"10": "xxxxxxxxxxxxx", "20": "xxxxxxxxxxxxx"},
+  "kdv": {"10": "xxxxxxxxxxxxx", "20": "xxxxxxxxxxxxx"},
   "aciklama": "Z RAPORU",
   "fis_no": "z_no",
   "isletme": {"faaliyet_kodu": "561001"}

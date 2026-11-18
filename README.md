@@ -178,9 +178,10 @@ z-rapor luca calisma/raporlar.json --tur isletme --hesaplar hesaplar.json -o luc
 - **İşletme defteri** (`zrapor/sablonlar/isletme_hizli_fis_aktarim.csv`, cp1254, `;`, 36 kolon, ondalık
   virgül): Z başına KDV oranı başına bir satır. TUTAR = matrah, KREDİLİ TUTAR = kartla tahsilat (çok oranlı
   Z'de oranlara toplam payıyla bölünür). Faaliyet kodu firma başına verilir.
-- **Hesap kodları**: varsayılanlar `zrapor/luca.py` içinde (`100.01.001`, `108.01.001`, `600.01.00x`,
-  `391.01.00x`). Her firmanın hesap planı farklıdır; kendi kodlarınızı VKN başına bir JSON dosyasında verin
-  (biçim: `ornekler/hesaplar.ornek.json`). Kontrol edilmemiş kod kullanılırsa komut bunu söyler.
+- **Hesap kodları**: `zrapor/luca.py` içindeki varsayılanlar yalnız ana hesaplardır (`100`, `108`, `600`,
+  `391`). Alt hesaplar her firmada farklıdır; kendi kodlarınızı VKN başına bir JSON dosyasında verin
+  (biçim: `ornekler/hesaplar.ornek.json`; `xxxxxxxxxxxxx` yazan yerlere kendi kodunuzu yazın). Firma
+  dosyasında verilmemiş kod kullanılırsa komut bunu söyler.
 - Çözülmemiş kırmızısı olan Z dosyaya **girmez**, nedeniyle listelenir.
 
 Her iki şablon da Luca'da gerçek dönem verisiyle içe aktarılarak doğrulandı. Hesap kodları her büroda

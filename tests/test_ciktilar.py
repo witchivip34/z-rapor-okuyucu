@@ -52,6 +52,11 @@ def test_luca_bilanco_dengeli(ornek_raporlar, tmp_path: Path):
         assert round(borc, 2) == round(alacak, 2)
 
 
+def test_luca_hesap_dosyasi_yoksa_kodlar_bildirilir(ornek_raporlar, tmp_path: Path):
+    o = luca.bilanco_yaz(kontrol_et(ornek_raporlar), tmp_path / "b.xlsx")
+    assert {"100 (kasa)", "108 (POS)", "600 (satış %10)", "391 (KDV %10)"} <= set(o["tahmini_kodlar"])
+
+
 def test_luca_isletme_csv_36_kolon(ornek_raporlar, tmp_path: Path):
     cikti = tmp_path / "isletme.csv"
     o = luca.isletme_yaz(kontrol_et(ornek_raporlar), cikti,

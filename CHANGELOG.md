@@ -1,5 +1,11 @@
 # Değişiklik günlüğü
 
+## Yayımlanmamış
+
+- Luca: varsayılan hesap kodları yalnız ana hesaplar (`100`, `108`, `600`, `391`); alt hesaplar firma
+  dosyasından verilir. Firma dosyasında olmayan her kod (kasa ve POS dahil) "kontrol edilmemiş" diye bildirilir.
+  `ornekler/hesaplar.ornek.json`'da kodların yerinde `xxxxxxxxxxxxx` var.
+
 ## 0.1.0 — 2026-10-19
 
 İlk herkese açık sürüm.
